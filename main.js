@@ -89,7 +89,10 @@ const expertModelInput = document.getElementById('expert-model-input');
 
 function init() {
     try {
-        if (window.innerWidth <= 1024) {
+        // Collapse on narrow viewports OR phones using "Desktop site" mode
+        // screen.width gives the real physical screen width even in Desktop mode
+        const isMobileDevice = screen.width < 1024 && navigator.maxTouchPoints > 0;
+        if (window.innerWidth <= 1024 || isMobileDevice) {
             sidebar?.classList.add('collapsed');
         }
         setupTestingUI(); 
@@ -582,7 +585,8 @@ Rules:
             expandContainer.classList.toggle('active', isCollapsed);
         }
         if (sidebarBackdrop) {
-            sidebarBackdrop.classList.toggle('active', !isCollapsed && window.innerWidth <= 1024);
+            const isMobileDevice = screen.width < 1024 && navigator.maxTouchPoints > 0;
+            sidebarBackdrop.classList.toggle('active', !isCollapsed && (window.innerWidth <= 1024 || isMobileDevice));
         }
     });
 
@@ -1932,7 +1936,7 @@ function loadChatSessionById(chatId) {
 
     // Close hover-expanded sidebar and collapse on mobile
     sidebar?.classList.remove('hover-expanded');
-    if (window.innerWidth <= 1024) {
+    if (window.innerWidth <= 1024 || (screen.width < 1024 && navigator.maxTouchPoints > 0)) {
         sidebar?.classList.add('collapsed');
     }
 
@@ -2230,7 +2234,7 @@ function startNewChat(resetWorkspace = true) {
     if (window.clearDocsAgentSelection) window.clearDocsAgentSelection();
     if (window.clearSheetsAgentSelection) window.clearSheetsAgentSelection();
     sidebar?.classList.remove('hover-expanded');
-    if (window.innerWidth <= 1024) {
+    if (window.innerWidth <= 1024 || (screen.width < 1024 && navigator.maxTouchPoints > 0)) {
         sidebar?.classList.add('collapsed');
     }
 
