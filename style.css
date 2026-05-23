@@ -2541,7 +2541,7 @@ textarea {
         min-width: 56px;
         height: 100dvh;
         position: relative;
-        z-index: 100;
+        z-index: 1000;
         border-right: 1px solid rgba(255, 255, 255, 0.08);
     }
 
@@ -2816,17 +2816,11 @@ textarea {
 
 .neura-rings-container {
     width: 100vw;
-    height: 100vh; /* Changed from 400px to full height to prevent vertical cutoff */
-    position: absolute; /* Changed to absolute to fill the screen */
-    top: 50%;
+    height: 400px;
+    position: relative;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     overflow: hidden;
-    z-index: 1;
-    pointer-events: none;
-    /* Apply a smooth radial fade so rings never hit a hard edge */
-    mask-image: radial-gradient(circle at center, black 20%, transparent 60%);
-    -webkit-mask-image: radial-gradient(circle at center, black 20%, transparent 60%);
 }
 
 .neura-orb-core {
