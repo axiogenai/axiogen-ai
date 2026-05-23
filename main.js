@@ -4,7 +4,7 @@
 
 import { setupTestingUI } from './forge.js';
 import { setupCompilerUI } from './compiler.js';
-import { speak, stopSpeaking, isSpeaking, loadVoices, changeVoice, getAvailableVoices, getSelectedVoice } from './voice.js';
+import { speak, stopSpeaking, isSpeaking, loadVoices, changeVoice, getAvailableVoices, getSelectedVoice, cleanTextForSpeech } from './voice.js';
 import { setupNeura, resetNeura } from './neura.js';
 import { setupNsfw, resetNsfw } from './nsfw.js';
 
@@ -501,22 +501,6 @@ Rules:
         state.tutorActivated = !state.tutorActivated;
         localStorage.setItem('AXIOGEN_tutor_active', state.tutorActivated);
         updateTutorUI();
-
-        // Retroactive interpretation: If turned ON and there's a last AI message, interpret it now
-        if (state.tutorActivated && state.currentMessages.length > 0) {
-            const lastMsg = state.currentMessages[state.currentMessages.length - 1];
-            if (lastMsg.role === 'assistant') {
-                const aiMessages = document.querySelectorAll('.ai-message .message-content');
-                if (aiMessages.length > 0) {
-                    const lastAiDiv = aiMessages[aiMessages.length - 1];
-                    const explanationDiv = document.createElement('div');
-                    explanationDiv.className = 'expert-explanation-zone';
-                    explanationDiv.style = "margin-top: 1.5rem; padding: 1.5rem; background: rgba(230, 236, 242, 0.05); border-left: 3px solid var(--primary); border-radius: 0 12px 12px 0; font-size: 0.95rem; line-height: 1.6;";
-                    lastAiDiv.appendChild(explanationDiv);
-                    handleExplanation(lastMsg.content, explanationDiv);
-                }
-            }
-        }
     });
 
     // Sidebar toggle with backdrop management
@@ -1351,7 +1335,8 @@ async function streamResponse() {
         // Trigger Expert Tutor if active
         if (state.tutorActivated && fullText.length > 0) {
             aiContentDiv.innerHTML = '<div class="interpreting-loader"><i class="fas fa-brain fa-spin"></i> AXIOGEN is synthesizing pedagogical insights...</div>';
-            handleExplanation(fullText, aiContentDiv);
+            // Pass wrapper + fullText so handleExplanation can add toolbar + save expertHtml when done
+            handleExplanation(fullText, aiContentDiv, aiContentDiv.closest('.message-wrapper'), fullText);
         }
     } catch (e) {
         if (e.name === 'AbortError') {
@@ -1379,13 +1364,11 @@ async function streamResponse() {
         // Add copy buttons to code blocks
         addCopyButtons(aiContentDiv);
         
-        // Add full action bar (Like, Retry, Copy, etc.) for responses that finished
-        if (fullText.length > 5) { // Lower threshold to ensure buttons show
+        // Add full action bar ONLY when expert tutor is NOT active (it adds its own after finishing)
+        if (fullText.length > 5 && !state.tutorActivated) {
             const wrapper = aiContentDiv.closest('.message-wrapper');
-            if (wrapper) {
-                // Remove loader before adding bar
-                const loader = aiContentDiv.querySelector('.interpreting-loader');
-                if (!loader) addActionBarToWrapper(wrapper, 'ai', fullText, aiContentDiv);
+            if (wrapper && !wrapper.querySelector('.message-actions')) {
+                addActionBarToWrapper(wrapper, 'ai', fullText, aiContentDiv);
             }
         }
     }
@@ -1431,7 +1414,10 @@ function addMessageToUI(role, content) {
     contentDiv.className = 'message-content';
     contentDiv.innerHTML = role === 'user' ? `<p>${content}</p>` : (typeof marked !== 'undefined' ? marked.parse(content) : content);
 
-    if (role === 'ai' && state.tutorActivated && content.length > 0) {
+    // Only call handleExplanation for LIVE responses — never during history restore,
+    // and never on the welcome/greeting message (only after user has asked something)
+    const hasUserMessage = state.currentMessages.some(m => m.role === 'user');
+    if (role === 'ai' && state.tutorActivated && !state._loadingHistory && hasUserMessage && content.length > 0) {
         handleExplanation(content, contentDiv);
     }
 
@@ -1622,16 +1608,33 @@ function addActionBarToWrapper(wrapper, role, content, contentDiv) {
         
         if (isCurrentlyReadingThis) return;
         
-        // Extract text, cloning to clean out button text, styles, or expert badges
+        // Extract ONLY the main AI response — skip Expert Tutor section entirely
         const tempDiv = contentDiv.cloneNode(true);
+
+        // Remove UI chrome
         tempDiv.querySelectorAll('.copy-code-btn').forEach(b => b.remove());
         tempDiv.querySelectorAll('.expert-badge').forEach(b => b.remove());
         tempDiv.querySelectorAll('.interpreting-loader').forEach(l => l.remove());
         tempDiv.querySelectorAll('style').forEach(s => s.remove());
-        const cleanedText = tempDiv.innerText || tempDiv.textContent;
+
+        // Skip tables entirely — they sound terrible when read aloud
+        tempDiv.querySelectorAll('table').forEach(t => t.remove());
+
+        // Remove the entire Expert AI Instruction block (header div + content)
+        tempDiv.querySelectorAll('.expert-explanation-zone').forEach(z => z.remove());
+        // Also remove any div containing "Expert AI Instruction" text
+        tempDiv.querySelectorAll('div').forEach(d => {
+            if (d.textContent.includes('Expert AI Instruction')) d.remove();
+        });
+
+        // Get raw text and run through NEURA's exact same cleaner
+        const rawText = tempDiv.innerText || tempDiv.textContent || '';
+        const speechText = cleanTextForSpeech(rawText);
         
+        if (!speechText.trim()) return;
+
         readAloudBtn.innerHTML = '<i class="fas fa-stop"></i> Stop reading';
-        speak(cleanedText, () => { 
+        speak(speechText, () => { 
             readAloudBtn.innerHTML = '<i class="fas fa-volume-up"></i> Read aloud'; 
         });
     });
@@ -1664,7 +1667,7 @@ function addActionBarToWrapper(wrapper, role, content, contentDiv) {
     wrapper.appendChild(actionBar);
 }
 
-async function handleExplanation(content, targetDiv) {
+async function handleExplanation(content, targetDiv, wrapper = null, rawContent = '') {
     // Add activation badge to the first AI message (welcome message) if not present
     const firstAiMessage = document.querySelector('.ai-message .message-content');
     if (firstAiMessage && !firstAiMessage.querySelector('.expert-badge')) {
@@ -1685,14 +1688,19 @@ async function handleExplanation(content, targetDiv) {
                 model: state.expertModel,
                 messages: [
                     {
-                    role: 'system',
-                    content: `You are AXIOGEN Expert Tutor. Explain concepts deeply and clearly. 
-                    Use structured formatting:
-                    - Use **Markdown Tables** for all comparisons, lists of types, or technical specifications.
-                    - Use bold text for key terms.
-                    - Use code blocks for technical examples.
-                    - Maintain a professional yet accessible academic tone.`
-                },        { role: 'user', content: `Explain this content step-by-step as a skilled teacher (NO INTROS): ${content}` }
+                        role: 'system',
+                        content: `You are AXIOGEN Expert Tutor — an elite academic AI. Your ONLY job is to explain the content given to you. 
+RULES YOU MUST NEVER BREAK:
+- NEVER ask for content. The content is already provided in the user message. START explaining immediately.
+- NEVER say "Certainly", "Sure", "Of course", "I'd be happy to", "Please provide", "Waiting for your content", or any other filler.
+- NEVER write an introduction about what you are going to do. Just DO it.
+- BEGIN your response with the actual explanation — first word must be a real concept or heading.
+- Use **bold** for key terms, markdown tables for comparisons, code blocks for code examples.
+- Be deep, precise, and academically rigorous but easy to understand.`
+                    },
+                    { role: 'user', content: `HERE IS THE CONTENT TO EXPLAIN — start your expert explanation immediately, first word:
+
+${content}` }
                 ],
                 max_tokens: 1500,
                 stream: true
@@ -1709,14 +1717,19 @@ async function handleExplanation(content, targetDiv) {
                     model: 'google/gemini-2.0-flash-001',
                     messages: [
                         {
-                    role: 'system',
-                    content: `You are AXIOGEN Expert Tutor. Explain concepts deeply and clearly. 
-                    Use structured formatting:
-                    - Use **Markdown Tables** for all comparisons, lists of types, or technical specifications.
-                    - Use bold text for key terms.
-                    - Use code blocks for technical examples.
-                    - Maintain a professional yet accessible academic tone.`
-                },        { role: 'user', content: `Explain this content step-by-step as a skilled teacher (NO INTROS): ${content}` }
+                            role: 'system',
+                            content: `You are AXIOGEN Expert Tutor — an elite academic AI. Your ONLY job is to explain the content given to you. 
+RULES YOU MUST NEVER BREAK:
+- NEVER ask for content. The content is already provided in the user message. START explaining immediately.
+- NEVER say "Certainly", "Sure", "Of course", "I'd be happy to", "Please provide", "Waiting for your content", or any other filler.
+- NEVER write an introduction about what you are going to do. Just DO it.
+- BEGIN your response with the actual explanation — first word must be a real concept or heading.
+- Use **bold** for key terms, markdown tables for comparisons, code blocks for code examples.
+- Be deep, precise, and academically rigorous but easy to understand.`
+                        },
+                        { role: 'user', content: `HERE IS THE CONTENT TO EXPLAIN — start your expert explanation immediately, first word:
+
+${content}` }
                     ],
                     max_tokens: 1500,
                     stream: true
@@ -1785,11 +1798,39 @@ async function handleExplanation(content, targetDiv) {
             }
         }
         expertIsRendering = false;
+
+        // Flush any remaining render buffer
+        await new Promise(resolve => setTimeout(resolve, 150));
+
+        // Save expertHtml into the last assistant message so it survives reload
+        if (expertFullText.length > 0) {
+            const lastAssistant = [...state.currentMessages].reverse().find(m => m.role === 'assistant');
+            if (lastAssistant) {
+                lastAssistant.expertHtml = targetDiv.innerHTML;
+                // Also tag the history entry with tutorMode
+                const chatEntry = state.history.find(c => c.id === state.currentChatId);
+                if (chatEntry) {
+                    chatEntry.tutorMode = true;
+                    chatEntry.messages = [...state.currentMessages];
+                    localStorage.setItem('AXIOGEN_history', JSON.stringify(state.history.slice(0, 20)));
+                }
+            }
+        }
+
         // Add copy buttons to explanation
         setTimeout(() => addCopyButtons(targetDiv), 100);
+
+        // Add toolbar now that expert tutor is fully done
+        if (wrapper && rawContent.length > 5 && !wrapper.querySelector('.message-actions')) {
+            addActionBarToWrapper(wrapper, 'ai', rawContent, targetDiv);
+        }
     } catch (e) {
         console.error('Explanation failed:', e);
         targetDiv.innerHTML = '<div style="color: #ff4444; padding: 1rem; background: rgba(255,68,68,0.1); border-radius: 8px;">Failed to generate expert explanation. Check your API key or model settings.</div>';
+        // Still add toolbar on error
+        if (wrapper && rawContent.length > 5 && !wrapper.querySelector('.message-actions')) {
+            addActionBarToWrapper(wrapper, 'ai', rawContent, targetDiv);
+        }
     }
 }
 
@@ -1802,6 +1843,8 @@ function saveHistory() {
 
         if (existingChat) {
             existingChat.messages = [...state.currentMessages];
+            // Always keep tutorMode flag in sync
+            if (state.tutorActivated) existingChat.tutorMode = true;
         } else {
             const newId = Date.now().toString();
             const firstUserMsg = state.currentMessages.find(m => m.role === 'user');
@@ -1814,7 +1857,8 @@ function saveHistory() {
                 id: newId,
                 title: (titleContent.substring(0, 30) || "Document Analysis").trim(),
                 messages: [...state.currentMessages],
-                workspace: state.currentWorkspace
+                workspace: state.currentWorkspace,
+                tutorMode: state.tutorActivated || false
             };
             state.history.unshift(newChat);
             state.currentChatId = newId;
@@ -1931,11 +1975,40 @@ function loadChatSessionById(chatId) {
     const ws = document.getElementById('welcome-screen');
     if (ws) ws.style.display = 'none';
     clearChatDisplay();
+
+    // Restore Expert Tutor mode flag if this chat was saved in tutor mode
+    const wasTutorMode = chat.tutorMode === true;
+    if (wasTutorMode) {
+        state.tutorActivated = true;
+        localStorage.setItem('AXIOGEN_tutor_active', 'true');
+        // Update the Expert Tutor button in the header to show "On"
+        const tutorToggle = document.getElementById('tutor-toggle');
+        if (tutorToggle) {
+            tutorToggle.textContent = 'Expert Tutor: On';
+            tutorToggle.classList.add('active');
+        }
+    } else {
+        // Don't override if currently active from the tutor header toggle
+        if (!state.tutorActivated) {
+            state.tutorActivated = false;
+        }
+    }
+
+    // Guard: suppress handleExplanation during history restore
+    state._loadingHistory = true;
     state.currentMessages.forEach(msg => {
         if (msg.role !== 'system') {
-            addMessageToUI(msg.role === 'assistant' ? 'ai' : 'user', msg.content);
+            const role = msg.role === 'assistant' ? 'ai' : 'user';
+            const contentDiv = addMessageToUI(role, msg.content);
+
+            // Restore expert HTML for assistant messages if saved
+            if (role === 'ai' && msg.expertHtml && contentDiv) {
+                contentDiv.innerHTML = msg.expertHtml;
+                addCopyButtons(contentDiv);
+            }
         }
     });
+    state._loadingHistory = false;
 }
 
 function openSearchModal() {
