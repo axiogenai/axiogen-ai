@@ -137,7 +137,8 @@ async function runForgePipeline() {
 
 async function callAgent(agentKey, context, modelOverride) {
     const agent = AGENTS[agentKey];
-    const apiKey = localStorage.getItem('axiora_api_key') || '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';
+    const apiKey = localStorage.getItem('AXIOGEN_api_key');
+    if (!apiKey) throw new Error('API Key is missing. Please set it in Settings.');
 
     try {
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
