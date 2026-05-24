@@ -40,6 +40,10 @@ const state = {
 };
 window.state = state;
 
+if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+}
+
 // ========== ATTACHMENTS UI ==========
 window.renderAttachments = function() {
     const bar = document.getElementById('attachments-bar');
@@ -47,9 +51,9 @@ window.renderAttachments = function() {
     if (state.attachments && state.attachments.length > 0) {
         bar.style.display = 'flex';
         bar.innerHTML = state.attachments.map((att, i) => `
-            <div class="attachment-pill" style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; color: #fff;">
+            <div class="attachment-pill">
                 <i class="fas fa-file-alt"></i> ${att.name}
-                <button onclick="window.removeAttachment(${i})" style="background: none; border: none; color: #aaa; cursor: pointer; padding: 0; font-size: 1rem; line-height: 1;">&times;</button>
+                <button onclick="window.removeAttachment(${i})">&times;</button>
             </div>
         `).join('');
     } else {
@@ -182,8 +186,9 @@ function init() {
                 sendBtn.disabled = !hasContent;
             }
 
-            chatInput.style.height = 'auto';
-            chatInput.style.height = (chatInput.scrollHeight) + 'px';
+            // Removed auto-resizing to keep prompt box size fixed
+            // chatInput.style.height = 'auto';
+            // chatInput.style.height = (chatInput.scrollHeight) + 'px';
         });
         chatInput.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -835,11 +840,15 @@ function toggleTradingWorkspace(btn) {
     const chatInputArea = document.querySelector('.chat-input-area');
 
     if (state.currentWorkspace === 'trading') {
-        state.currentWorkspace = null;
-        tradingContainer.style.display = 'none';
-        chatDisplay.style.display = 'flex';
-        chatInputArea.style.display = 'block';
-        btn.classList.remove('workspace-active');
+        // Just reset to trading dashboard if already in trading
+        hideAllWorkspaces();
+        tradingContainer.style.display = 'flex';
+        chatDisplay.style.display = 'none';
+        chatInputArea.style.display = 'none';
+        btn.classList.add('workspace-active');
+        if (window.innerWidth <= 767 || (screen.width < 1024 && navigator.maxTouchPoints > 0)) {
+            sidebar?.classList.add('collapsed');
+        }
     } else {
         state.currentWorkspace = 'trading';
         hideAllWorkspaces();
@@ -864,11 +873,16 @@ function toggleTestingWorkspace(btn) {
     const chatInputArea = document.querySelector('.chat-input-area');
 
     if (state.currentWorkspace === 'testing') {
-        state.currentWorkspace = null;
-        testingContainer.style.display = 'none';
-        chatDisplay.style.display = 'flex';
-        chatInputArea.style.display = 'block';
-        btn.classList.remove('workspace-active');
+        // Just reset to testing dashboard if already in testing
+        hideAllWorkspaces();
+        testingContainer.style.display = 'flex';
+        chatDisplay.style.display = 'none';
+        chatInputArea.style.display = 'none';
+        btn.classList.add('workspace-active');
+        if (window.innerWidth <= 767 || (screen.width < 1024 && navigator.maxTouchPoints > 0)) {
+            sidebar?.classList.add('collapsed');
+        }
+        setupTestingUI();
     } else {
         state.currentWorkspace = 'testing';
         hideAllWorkspaces();
@@ -895,11 +909,16 @@ function toggleAxiogenCodeWorkspace(btn) {
     const chatInputArea = document.querySelector('.chat-input-area');
 
     if (state.currentWorkspace === 'axiogencode') {
-        state.currentWorkspace = null;
-        container.style.display = 'none';
-        chatDisplay.style.display = 'flex';
-        chatInputArea.style.display = 'block';
-        btn.classList.remove('workspace-active');
+        // Just reset to axiogencode dashboard if already in axiogencode
+        hideAllWorkspaces();
+        container.style.display = 'flex';
+        chatDisplay.style.display = 'none';
+        chatInputArea.style.display = 'none';
+        btn.classList.add('workspace-active');
+        if (window.innerWidth <= 767 || (screen.width < 1024 && navigator.maxTouchPoints > 0)) {
+            sidebar?.classList.add('collapsed');
+        }
+        setupCompilerUI();
     } else {
         state.currentWorkspace = 'axiogencode';
         hideAllWorkspaces();
@@ -930,13 +949,23 @@ function toggleProgressWorkspace(workspace, btn) {
     const chatInputArea = document.querySelector('.chat-input-area');
 
     if (state.currentWorkspace === workspace) {
-        state.currentWorkspace = null;
-        if (container) container.style.display = 'none';
-        chatDisplay.style.display = 'flex';
+        // If clicking the active workspace, return to its dashboard (grid)
+        if (window.clearDocsAgentSelection) window.clearDocsAgentSelection(true);
+        if (window.clearSheetsAgentSelection) window.clearSheetsAgentSelection(true);
+        hideAllWorkspaces();
+        if (container) container.style.display = 'flex';
+        chatDisplay.style.display = 'none';
         chatInputArea.style.display = 'block';
-        btn.classList.remove('workspace-active');
-        document.body.classList.remove('docs-mode');
-        document.body.classList.remove('sheets-mode');
+        
+        if (workspace === 'docs') {
+            document.body.classList.add('docs-mode');
+            const docsMain = container.querySelector('.docs-main-container');
+            if (docsMain) docsMain.style.display = 'flex';
+        } else if (workspace === 'sheets') {
+            document.body.classList.add('sheets-mode');
+            const sheetsMain = container.querySelector('.sheets-main-container');
+            if (sheetsMain) sheetsMain.style.display = 'flex';
+        }
     } else {
         state.currentWorkspace = workspace;
         hideAllWorkspaces();
@@ -1099,9 +1128,8 @@ async function sendMessage() {
         payloadContent = payloadContent ? `${attachText}\n\n${payloadContent}` : attachText;
     }
     
-    // UI Display Content (keep it clean)
-    const displayContent = rawInput || `Attached ${state.attachments.length} file(s)`;
-    addMessageToUI('user', displayContent);
+    // Display immediately (the UI will format the payload into pills)
+    addMessageToUI('user', payloadContent);
     
     if (hasAttachments) {
         state.attachments = [];
@@ -1112,7 +1140,7 @@ async function sendMessage() {
     localStorage.setItem('AXIOGEN_current_session', JSON.stringify(state.currentMessages));
 
     chatInput.value = '';
-    chatInput.style.height = 'auto';
+    // chatInput.style.height = 'auto'; // Removed to keep prompt box size fixed
     chatInput.dispatchEvent(new Event('input')); // Trigger mic visibility reset
 
     // Intercept trivial greeting questions for 0ms latency responses
@@ -1422,7 +1450,22 @@ function addMessageToUI(role, content) {
     }
     const contentDiv = document.createElement('div');
     contentDiv.className = 'message-content';
-    contentDiv.innerHTML = role === 'user' ? `<p>${content}</p>` : (typeof marked !== 'undefined' ? marked.parse(content) : content);
+    
+    if (role === 'user') {
+        let userHTML = content;
+        // Convert file payloads into visual attachment pills
+        userHTML = userHTML.replace(/\[FILE: (.*?)\]\n```[\s\S]*?```\n*/g, '<div class="attachment-pill" style="display: inline-flex; pointer-events: none;"><i class="fas fa-file-alt"></i> $1</div>');
+        // Group adjacent pills into a flex container to force text to the next line cleanly, aligned to right
+        if (userHTML.includes('attachment-pill')) {
+            userHTML = userHTML.replace(/(<div class="attachment-pill"[\s\S]*?<\/div>)+/g, '<div class="attachments-container" style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-bottom: 8px;">$&</div>');
+        }
+        // Format basic line breaks
+        userHTML = userHTML.replace(/\n/g, '<br>');
+        // Use a div with text-align right instead of p to avoid invalid nesting and fulfill the user's alignment request
+        contentDiv.innerHTML = `<div style="text-align: right; word-break: break-word;">${userHTML}</div>`;
+    } else {
+        contentDiv.innerHTML = typeof marked !== 'undefined' ? marked.parse(content) : content;
+    }
 
     // Only call handleExplanation for LIVE responses — never during history restore,
     // and never on the welcome/greeting message (only after user has asked something)
