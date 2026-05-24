@@ -1257,13 +1257,20 @@ textarea {
 
 .forge-new-chat-btn {
     padding: 8px 16px;
-    background: var(--accent);
-    color: #050505;
+    background: linear-gradient(135deg, #a855f7, #6366f1);
+    color: #ffffff;
     border: none;
     border-radius: 10px;
     font-size: 13px;
     font-weight: 700;
     cursor: pointer;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
+    transition: all 0.2s;
+}
+
+.forge-new-chat-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.35);
 }
 
 .forge-workspace {
@@ -1323,7 +1330,7 @@ textarea {
 }
 
 .panel-header i, .prompt-label i {
-    color: var(--accent);
+    color: #a855f7;
     font-size: 12px;
 }
 
@@ -1345,10 +1352,10 @@ textarea {
 
 .forge-btn-primary {
     padding: 14px 24px;
-    background: linear-gradient(135deg, var(--accent), #3b82f6);
+    background: linear-gradient(135deg, #a855f7, #6366f1);
     border: none;
     border-radius: 12px;
-    color: #050505;
+    color: #ffffff;
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
@@ -1357,13 +1364,13 @@ textarea {
     justify-content: center;
     gap: 10px;
     margin-top: auto;
-    box-shadow: 0 4px 15px rgba(0, 255, 255, 0.25);
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
     transition: all 0.2s;
 }
 
 .forge-btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 255, 255, 0.35);
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.35);
 }
 
 .forge-empty-state {
