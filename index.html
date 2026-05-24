@@ -408,7 +408,7 @@
                     <div class="sheets-cards-container" id="sheetsCardsContainer">
                         <div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 24px; animation: fadeIn 0.5s ease-out;">
                             <h2 style="margin: 0 0 8px 0; padding: 0; font-size: 2rem; font-weight: 600; text-align: center; background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.4) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px;">Spreadsheet Intelligence</h2>
-                            <p style="margin: 0; padding: 0; color: #666; font-size: 0.95rem; max-width: 450px; text-align: center; line-height: 1.5;">Select an agent to analyze data, build formulas, create charts, or clean datasets.</p>
+                            <p style="margin: 0; padding: 0; color: #666; font-size: 0.95rem; max-width: 450px; text-align: center; line-height: 1.5; min-height: 44px;">Select an agent to analyze data, build formulas, create charts, or clean datasets.</p>
                         </div>
                         <div class="sheets-agent-grid" id="sheetsAgentGrid">
                             <!-- Cards injected by JS -->
@@ -501,7 +501,7 @@
                     <div class="docs-cards-container" id="docsCardsContainer">
                         <div style="width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 24px; animation: fadeIn 0.5s ease-out;">
                             <h2 style="margin: 0 0 8px 0; padding: 0; font-size: 2rem; font-weight: 600; text-align: center; background: linear-gradient(135deg, #ffffff 0%, rgba(255, 255, 255, 0.4) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px;">Document Intelligence</h2>
-                            <p style="margin: 0; padding: 0; color: #666; font-size: 0.95rem; max-width: 400px; text-align: center; line-height: 1.5;">Select an agent to extract insights, compare versions, or manipulate your files.</p>
+                            <p style="margin: 0; padding: 0; color: #666; font-size: 0.95rem; max-width: 450px; text-align: center; line-height: 1.5; min-height: 44px;">Select an agent to extract insights, compare versions, or manipulate your files.</p>
                         </div>
                         <div class="docs-agent-grid" id="docsAgentGrid">
                             <!-- Cards injected by JS -->
@@ -522,6 +522,9 @@
             <footer class="chat-input-area">
                 <div class="input-container" style="max-width: 600px;">
                     <div class="input-wrapper" style="flex-direction: column; align-items: stretch; gap: 0;">
+                        <!-- File Attachments Bar (above everything) -->
+                        <div id="attachments-bar" style="display: none; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%;"></div>
+
                         <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
                             <!-- Active Docs Agent Bar (Inside global prompt box) -->
                             <div class="docs-active-agent-bar" id="docsActiveAgentBar" style="display: none; align-items: center; margin-bottom: 0.7rem;">
@@ -540,29 +543,32 @@
                                     <button class="sheets-badge-remove" id="sheetsBadgeRemove" title="Remove agent">&times;</button>
                                 </span>
                             </div>
-
-                            <!-- File Attachments Bar -->
-                            <div id="attachments-bar" style="display: none; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 0.7rem;"></div>
                         </div>
-                        
-                        <div style="display: flex; align-items: flex-end; gap: 1rem; width: 100%;">
-                            <textarea id="chat-input" placeholder="Message AXIOGEN..." rows="1" style="flex: 1; margin: 0;"></textarea>
-                            <div class="input-actions">
+
+                        <div style="display: flex; align-items: flex-end; gap: 0.5rem; width: 100%;">
+                            <div class="input-actions-left" style="display: flex; gap: 4px; padding-bottom: 4px;">
                                 <button class="input-btn" id="upload-btn" title="Upload File">
                                     <i class="fas fa-paperclip"></i>
                                 </button>
                                 <input type="file" id="file-input" style="display: none;" accept=".txt,.js,.py,.html,.css,.json,.md,.ts,.jsx,.tsx,.c,.cpp,.java,.rb,.go,.rs,.php,.sql,.xml,.yaml,.yml,.csv,.tsv,.log,.pdf,.docx,.doc,.xlsx,.xls,.ods">
-                                <button class="input-btn enhance-btn" id="enhance-prompt-btn" title="Enhance Prompt">
+                            </div>
+
+                            <textarea id="chat-input" placeholder="Message AXIOGEN..." rows="1" style="flex: 1; margin: 0; padding-bottom: 8px; word-break: break-word; align-self: center;"></textarea>
+
+                            <div class="input-actions-right" style="display: flex; align-items: center; gap: 4px; padding-bottom: 4px;">
+                                <button class="input-btn enhance-btn" id="enhance-prompt-btn" title="Enhance Prompt" style="width: 36px; height: 36px; font-size: 0.9rem;">
                                     <i class="fas fa-wand-magic-sparkles"></i>
                                 </button>
+
                                 <button class="input-btn" id="voice-input-btn" title="Voice Input">
                                     <i class="fas fa-microphone"></i>
                                 </button>
-                                <button class="input-btn stop-btn" id="stop-btn" style="display: none; color: #ff4444;"
-                                    title="Stop Engine">
+
+                                <button class="input-btn stop-btn" id="stop-btn" style="display: none; color: #ff4444;" title="Stop Engine">
                                     <i class="fas fa-stop"></i>
                                 </button>
-                                <button class="input-btn send-btn" id="send-btn" disabled>
+
+                                <button class="input-btn send-btn" id="send-btn" disabled style="display: none;">
                                     <i class="fas fa-arrow-up"></i>
                                 </button>
                             </div>
