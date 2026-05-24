@@ -1067,8 +1067,10 @@ async function processUserSpeech(text) {
 async function _fetchWithKeyRotation(options) {
     const models = [
         'google/gemini-2.5-flash',
-        'google/gemini-2.0-flash-001',
-        'deepseek/deepseek-chat',
+        'google/gemini-2.5-flash:free',
+        'google/gemini-2.0-flash-exp:free',
+        'meta-llama/llama-3.3-70b-instruct:free',
+        'meta-llama/llama-3.2-3b-instruct:free',
     ];
 
     const makeRequest = (model, signal) => {
