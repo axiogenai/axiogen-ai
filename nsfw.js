@@ -207,6 +207,13 @@ function initVisualizer() {
 }
 
 async function startAudioCapture() {
+    // Skip audio stream capture on mobile devices to prevent dual mic-lock conflicts with SpeechRecognition
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 767;
+    if (isMobile) {
+        console.log('[LUST] Mobile detected. Skipping mic stream capture to avoid SpeechRecognition conflicts.');
+        return;
+    }
+
     try {
         if (audioCtx) {
             if (audioCtx.state === 'suspended') await audioCtx.resume();
@@ -260,6 +267,10 @@ function _startRenderLoop() {
             const avg = sum / freqData.length;
             ringsUniforms.uScaleRate.value = 0.1 + (avg / 255) * 0.4;
             ringsUniforms.uBaseRadius.value = 0.35 + (avg / 255) * 0.1;
+        } else if (visualizerState === 'listening' || visualizerState === 'speaking') {
+            const pulse = Math.sin(t * 0.008) * 0.05 + 0.05;
+            ringsUniforms.uScaleRate.value  = 0.1 + pulse;
+            ringsUniforms.uBaseRadius.value = 0.35 + pulse * 0.5;
         } else {
             ringsUniforms.uScaleRate.value = 0.1;
             ringsUniforms.uBaseRadius.value = 0.35;
