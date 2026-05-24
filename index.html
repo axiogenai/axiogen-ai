@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Axiogen is a premium AI platform offering advanced intelligent chat, deep research, document examination, and powerful conversational tools.">
     <title>AXIOGEN | Premium AI Chat</title>
     <!-- Critical: hide page until all resources load to prevent layout shift -->
     <style>
@@ -50,7 +51,7 @@
         <aside class="sidebar" id="sidebar">
 
 
-            <div class="sidebar-inner">
+
                 <!-- Top Nav Controls -->
                 <div class="axiogen-sidebar-top">
                     <div class="axiogen-top-row" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
@@ -283,9 +284,14 @@
                     <div class="forge-workspace">
                         <!-- Left Panel: Input -->
                         <div class="forge-panel forge-panel-input">
-                            <div class="panel-header">
-                                <i class="fas fa-code"></i>
-                                <span>Source Code</span>
+                            <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <i class="fas fa-code"></i>
+                                    <span>Source Code</span>
+                                </div>
+                                <button id="run-pipeline-btn" class="forge-btn-primary" style="padding: 6px 14px; font-size: 13px; margin-top: 0; border-radius: 6px; box-shadow: none;">
+                                    <i class="fas fa-play"></i> Run
+                                </button>
                             </div>
                             <textarea id="testing-code-input" class="code-editor"
                                 placeholder="Paste your code here..."></textarea>
@@ -298,10 +304,6 @@
                                 <textarea id="testing-prompt-input" class="prompt-input"
                                     placeholder="e.g., Focus on performance, add types..." rows="2"></textarea>
                             </div>
-
-                            <button id="run-pipeline-btn" class="forge-btn-primary">
-                                <i class="fas fa-play"></i> Run Pipeline
-                            </button>
                         </div>
 
                         <!-- Right Panel: Results -->
