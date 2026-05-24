@@ -559,8 +559,7 @@ Rules:
             expandContainer.classList.toggle('active', isCollapsed);
         }
         if (sidebarBackdrop) {
-            const isMobileDevice = screen.width < 1024 && navigator.maxTouchPoints > 0;
-            sidebarBackdrop.classList.toggle('active', !isCollapsed && (window.innerWidth <= 767 || isMobileDevice));
+            sidebarBackdrop.classList.toggle('active', !isCollapsed && window.innerWidth <= 767);
         }
     });
 
@@ -572,6 +571,14 @@ Rules:
         if (expandContainer) {
             expandContainer.classList.toggle('active', isCollapsed);
         }
+
+        // Sync backdrop on window resize (e.g., phone orientation shifts or desktop resizing)
+        window.addEventListener('resize', () => {
+            const currentCollapsed = sidebar.classList.contains('collapsed');
+            if (sidebarBackdrop) {
+                sidebarBackdrop.classList.toggle('active', !currentCollapsed && window.innerWidth <= 767);
+            }
+        });
     }
 
     document.querySelectorAll('.workspace-btn').forEach(btn => {
@@ -657,10 +664,7 @@ function switchToWorkspace(workspace, btn) {
     document.querySelectorAll('.workspace-btn').forEach(b => b.classList.remove('workspace-active'));
 
     // Hide all specialized containers first
-    ['testing-container', 'trading-container', 'sheets-container', 'axiogencode-container', 'neura-container', 'nsfw-container'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.style.display = 'none';
-    });
+    hideAllWorkspaces();
 
     // For examination and deep research, we always want to start a fresh session
     if (workspace === 'examination' || workspace === 'deepresearch') {
@@ -805,6 +809,18 @@ You are AXIOGEN. You research better than anyone.`;
         startNewChat(true);
     }
     window.updateEnhanceBtnVisibility?.();
+    syncTutorHeaderVisibility();
+}
+
+function syncTutorHeaderVisibility() {
+    const tutorHeaderControls = document.getElementById('tutor-header-controls');
+    if (tutorHeaderControls) {
+        if (state.currentWorkspace === 'examination') {
+            tutorHeaderControls.style.display = 'flex';
+        } else {
+            tutorHeaderControls.style.display = 'none';
+        }
+    }
 }
 
 function hideAllWorkspaces() {
@@ -840,6 +856,7 @@ function toggleTradingWorkspace(btn) {
         if (tutorHeaderControls) tutorHeaderControls.style.display = 'none';
     }
     window.updateEnhanceBtnVisibility?.();
+    syncTutorHeaderVisibility();
 }
 
 function toggleTestingWorkspace(btn) {
@@ -870,6 +887,7 @@ function toggleTestingWorkspace(btn) {
         setupTestingUI();
     }
     window.updateEnhanceBtnVisibility?.();
+    syncTutorHeaderVisibility();
 }
 
 function toggleAxiogenCodeWorkspace(btn) {
@@ -900,6 +918,7 @@ function toggleAxiogenCodeWorkspace(btn) {
         setupCompilerUI();
     }
     window.updateEnhanceBtnVisibility?.();
+    syncTutorHeaderVisibility();
 }
 
 function toggleProgressWorkspace(workspace, btn) {
@@ -1003,6 +1022,7 @@ function toggleProgressWorkspace(workspace, btn) {
         if (tutorHeaderControls) tutorHeaderControls.style.display = 'none';
     }
     window.updateEnhanceBtnVisibility?.();
+    syncTutorHeaderVisibility();
 }
 
 function getTrivialResponse(text) {
@@ -2001,6 +2021,7 @@ function loadChatSessionById(chatId) {
         }
     });
     state._loadingHistory = false;
+    syncTutorHeaderVisibility();
 }
 
 function openSearchModal() {
@@ -2314,6 +2335,8 @@ function startNewChat(resetWorkspace = true) {
     // Re-bind the reference if necessary
     const newWelcome = document.getElementById('welcome-screen');
     if (newWelcome) newWelcome.style.display = 'flex';
+    
+    syncTutorHeaderVisibility();
 }
 
 function saveSettings() {
