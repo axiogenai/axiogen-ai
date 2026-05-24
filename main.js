@@ -89,11 +89,12 @@ const expertModelInput = document.getElementById('expert-model-input');
 
 function init() {
     try {
-        // Collapse on narrow viewports OR phones using "Desktop site" mode
-        // screen.width gives the real physical screen width even in Desktop mode
+        // Mobile sidebar hide off-screen (<= 767px or touch desktops)
         const isMobileDevice = screen.width < 1024 && navigator.maxTouchPoints > 0;
-        if (window.innerWidth <= 1024 || isMobileDevice) {
+        if (window.innerWidth <= 767 || isMobileDevice) {
+            if (window.innerWidth <= 767 || (screen.width < 1024 && navigator.maxTouchPoints > 0)) {
             sidebar?.classList.add('collapsed');
+        }
         }
         setupTestingUI(); 
         setupNeura(state); 
@@ -519,38 +520,11 @@ Rules:
         sidebar.classList.add('collapsed');
     });
 
-    // Expand sidebar when clicking the dock logo (which shows open toggle button on hover)
-    const dockLogo = document.getElementById('dock-logo');
-    if (dockLogo && sidebar) {
-        dockLogo.addEventListener('click', () => {
-            sidebar.classList.remove('collapsed');
-        });
-    }
-
-    // Dock Shortcut Buttons click handlers
-    const dockNewChatBtn = document.getElementById('dock-new-chat-btn');
-    const dockSearchBtn = document.getElementById('dock-search-btn');
     const sidebarSearchBtn = document.getElementById('sidebar-search-btn');
-    const dockHistoryBtn = document.getElementById('dock-history-btn');
-
-    if (dockNewChatBtn) {
-        dockNewChatBtn.addEventListener('click', () => {
-            document.getElementById('new-chat-btn')?.click();
-        });
-    }
-    if (dockSearchBtn) {
-        dockSearchBtn.addEventListener('click', () => {
-            openSearchModal();
-        });
-    }
+    
     if (sidebarSearchBtn) {
         sidebarSearchBtn.addEventListener('click', () => {
             openSearchModal();
-        });
-    }
-    if (dockHistoryBtn) {
-        dockHistoryBtn.addEventListener('click', () => {
-            sidebar.classList.remove('collapsed');
         });
     }
 
@@ -586,7 +560,7 @@ Rules:
         }
         if (sidebarBackdrop) {
             const isMobileDevice = screen.width < 1024 && navigator.maxTouchPoints > 0;
-            sidebarBackdrop.classList.toggle('active', !isCollapsed && (window.innerWidth <= 1024 || isMobileDevice));
+            sidebarBackdrop.classList.toggle('active', !isCollapsed && (window.innerWidth <= 767 || isMobileDevice));
         }
     });
 
@@ -605,6 +579,10 @@ Rules:
             resetNeura();
             resetNsfw();
             sidebar?.classList.remove('hover-expanded');
+            
+            // Collapse sidebar unconditionally when opening any workspace
+            sidebar?.classList.add('collapsed');
+
             const workspace = e.currentTarget.getAttribute('data-workspace');
             console.log('Switching to workspace:', workspace);
             if (workspace === 'testing') {
@@ -854,7 +832,9 @@ function toggleTradingWorkspace(btn) {
         chatInputArea.style.display = 'none';
         document.querySelectorAll('.workspace-btn').forEach(b => b.classList.remove('workspace-active'));
         btn.classList.add('workspace-active');
-        sidebar?.classList.add('collapsed');
+        if (window.innerWidth <= 767 || (screen.width < 1024 && navigator.maxTouchPoints > 0)) {
+            sidebar?.classList.add('collapsed');
+        }
 
         const tutorHeaderControls = document.getElementById('tutor-header-controls');
         if (tutorHeaderControls) tutorHeaderControls.style.display = 'none';
@@ -880,7 +860,9 @@ function toggleTestingWorkspace(btn) {
         chatInputArea.style.display = 'none';
         document.querySelectorAll('.workspace-btn').forEach(b => b.classList.remove('workspace-active'));
         btn.classList.add('workspace-active');
-        sidebar?.classList.add('collapsed');
+        if (window.innerWidth <= 767 || (screen.width < 1024 && navigator.maxTouchPoints > 0)) {
+            sidebar?.classList.add('collapsed');
+        }
 
         const tutorHeaderControls = document.getElementById('tutor-header-controls');
         if (tutorHeaderControls) tutorHeaderControls.style.display = 'none';
@@ -908,7 +890,9 @@ function toggleAxiogenCodeWorkspace(btn) {
         chatInputArea.style.display = 'none';
         document.querySelectorAll('.workspace-btn').forEach(b => b.classList.remove('workspace-active'));
         btn.classList.add('workspace-active');
-        sidebar?.classList.add('collapsed');
+        if (window.innerWidth <= 767 || (screen.width < 1024 && navigator.maxTouchPoints > 0)) {
+            sidebar?.classList.add('collapsed');
+        }
 
         const tutorHeaderControls = document.getElementById('tutor-header-controls');
         if (tutorHeaderControls) tutorHeaderControls.style.display = 'none';
@@ -1011,7 +995,9 @@ function toggleProgressWorkspace(workspace, btn) {
         }
         document.querySelectorAll('.workspace-btn').forEach(b => b.classList.remove('workspace-active'));
         btn.classList.add('workspace-active');
-        sidebar?.classList.add('collapsed');
+        if (window.innerWidth <= 767 || (screen.width < 1024 && navigator.maxTouchPoints > 0)) {
+            sidebar?.classList.add('collapsed');
+        }
 
         const tutorHeaderControls = document.getElementById('tutor-header-controls');
         if (tutorHeaderControls) tutorHeaderControls.style.display = 'none';
@@ -1937,7 +1923,9 @@ function loadChatSessionById(chatId) {
     // Close hover-expanded sidebar and collapse on mobile
     sidebar?.classList.remove('hover-expanded');
     if (window.innerWidth <= 1024 || (screen.width < 1024 && navigator.maxTouchPoints > 0)) {
-        sidebar?.classList.add('collapsed');
+        if (window.innerWidth <= 767 || (screen.width < 1024 && navigator.maxTouchPoints > 0)) {
+            sidebar?.classList.add('collapsed');
+        }
     }
 
     // Restore the workspace if the chat belongs to one
@@ -2235,7 +2223,9 @@ function startNewChat(resetWorkspace = true) {
     if (window.clearSheetsAgentSelection) window.clearSheetsAgentSelection();
     sidebar?.classList.remove('hover-expanded');
     if (window.innerWidth <= 1024 || (screen.width < 1024 && navigator.maxTouchPoints > 0)) {
-        sidebar?.classList.add('collapsed');
+        if (window.innerWidth <= 767 || (screen.width < 1024 && navigator.maxTouchPoints > 0)) {
+            sidebar?.classList.add('collapsed');
+        }
     }
 
     state.currentMessages = [];
