@@ -1113,10 +1113,11 @@ async function processUserSpeech(text) {
 // ─── Fetch with key rotation ───────────────────────────────────────────────────
 
 async function _fetchWithKeyRotation(options) {
-    // Uncensored / NSFW-friendly model priority
     const models = [
         'cognitivecomputations/dolphin-mistral-24b-venice-edition:free',
+        'nousresearch/hermes-3-llama-3.1-405b:free',
         'nousresearch/hermes-3-llama-3.1-405b',
+        'meta-llama/llama-3.3-70b-instruct:free',
         'meta-llama/llama-3.3-70b-instruct'
     ];
 
