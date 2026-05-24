@@ -48,39 +48,7 @@
         <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
         <!-- Sidebar — AXIOGEN Ether Design -->
         <aside class="sidebar" id="sidebar">
-            <!-- Collapsed Sidebar Dock Rail (Visible only when collapsed on desktop) -->
-            <div class="sidebar-dock" id="sidebar-dock">
-                <div class="dock-top">
-                    <!-- Brand logo that toggles sidebar on click and turns into a toggle button on hover -->
-                    <div class="dock-logo" id="dock-logo" title="Open sidebar">
-                        <div class="logo-icon">
-                            <img src="logo.png" alt="AXIOGEN Logo" style="width: 32px; height: 32px; object-fit: contain; border-radius: 6px;">
-                        </div>
-                        <div class="toggle-icon">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-toggle-svg open-svg">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" class="svg-rect"></rect>
-                                <line x1="9" y1="3" x2="9" y2="21" class="svg-line"></line>
-                                <path d="M11 9l3 3-3 3" class="svg-chevron"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    
-                    <!-- Shortcut Buttons -->
-                    <button class="dock-btn" id="dock-new-chat-btn" title="New Chat">
-                        <span class="material-symbols-outlined">edit_square</span>
-                    </button>
-                    <button class="dock-btn" id="dock-search-btn" title="Search History">
-                        <span class="material-symbols-outlined">search</span>
-                    </button>
-                </div>
-                
-                <div class="dock-bottom">
-                    <!-- Circular avatar initials for user Aditya ("AP") -->
-                    <div class="dock-profile" title="Aditya (Profile)">
-                        <div class="dock-avatar">AP</div>
-                    </div>
-                </div>
-            </div>
+
 
             <div class="sidebar-inner">
                 <!-- Top Nav Controls -->
@@ -179,17 +147,20 @@
         <!-- Main Content -->
         <main class="main-content">
             <header class="chat-header">
-                <div class="header-left" style="display: flex; align-items: center; gap: 0.5rem;">
-                    <!-- ChatGPT-style open sidebar container (visible only when sidebar is collapsed) -->
-                    <div id="sidebar-expand-container" style="display: none; align-items: center; gap: 0.5rem;">
-                        <button id="sidebar-open-btn" class="sidebar-toggle-btn" title="Open sidebar">
-                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-toggle-svg open-svg">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" class="svg-rect"></rect>
-                                <line x1="9" y1="3" x2="9" y2="21" class="svg-line"></line>
-                                <path d="M11 9l3 3-3 3" class="svg-chevron"></path>
-                            </svg>
-                        </button>
-                        <div class="header-vertical-separator" style="width: 1px; height: 24px; background: rgba(255, 255, 255, 0.15); margin: 0 8px;"></div>
+                <div class="header-left" style="display: flex; align-items: center; gap: 0.5rem; padding-left: 24px;">
+                    <div id="sidebar-expand-container" style="display: none; position: fixed; left: 16px; top: 16px; z-index: 1000;">
+                        <div class="dock-logo" id="sidebar-open-btn" title="Open sidebar">
+                            <div class="logo-icon">
+                                <img src="logo.png" alt="AXIOGEN Logo" style="width: 32px; height: 32px; object-fit: contain; border-radius: 6px;">
+                            </div>
+                            <div class="toggle-icon">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="sidebar-toggle-svg open-svg">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" class="svg-rect"></rect>
+                                    <line x1="9" y1="3" x2="9" y2="21" class="svg-line"></line>
+                                    <path d="M11 9l3 3-3 3" class="svg-chevron"></path>
+                                </svg>
+                            </div>
+                        </div>
                     </div>
                     <div class="custom-dropdown" id="model-dropdown">
                         <div class="selected-model" id="selected-model-text">
@@ -662,6 +633,16 @@
             window.AXIOGEN_USER = session.user;
             window.AXIOGEN_SESSION = session;
             window.AXIOGEN_SUPABASE = _sb;
+
+            // Dynamically set avatar initials
+            const email = session.user.email || 'User';
+            const name = session.user.user_metadata?.full_name || email;
+            const initials = name.substring(0, 2).toUpperCase();
+            
+            const dockProfile = document.querySelector('.dock-profile');
+            const dockAvatar = document.querySelector('.dock-avatar');
+            if (dockProfile) dockProfile.title = `${name} (Profile)`;
+            if (dockAvatar) dockAvatar.textContent = initials;
 
             // Admin only workspace check (NSFW)
             const nsfwAuthorizedEmails = ['aditaypatil07@gmail.com', 'axiogen01@gmail.com'];
