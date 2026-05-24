@@ -760,7 +760,7 @@ body::before {
     backdrop-filter: var(--glass-blur);
     border: 1px solid var(--glass-border);
     border-radius: 24px;
-    padding: 0.8rem 1.5rem;
+    padding: 0.5rem 0.4rem;
     display: flex;
     align-items: flex-end;
     gap: 1rem;
@@ -2369,10 +2369,8 @@ textarea {
 .sidebar-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.8);
     z-index: 999;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -2381,6 +2379,12 @@ textarea {
 .sidebar-backdrop.active {
     opacity: 1;
     pointer-events: auto;
+}
+
+@media (min-width: 768px) {
+    .sidebar-backdrop {
+        display: none !important;
+    }
 }
 
 
@@ -2963,7 +2967,7 @@ textarea {
     text-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .neura-orb { width: 150px; height: 150px; }
     .neura-orb-core { width: 45px; height: 45px; }
     .neura-subtitles { font-size: 1.2rem; }
@@ -3270,7 +3274,7 @@ textarea {
     text-shadow: 0 0 5px rgba(255, 0, 127, 0.3);
 }
 
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .nsfw-orb { width: 150px; height: 150px; }
     .nsfw-orb-core { width: 45px; height: 45px; }
     .nsfw-subtitles { font-size: 1.2rem; }
@@ -4482,7 +4486,7 @@ textarea {
 }
 
 /* ── Responsive — Mobile Stacking ───────────────────────────── */
-@media (max-width: 768px) {
+@media (max-width: 767px) {
     .compiler-workspace {
         flex-direction: column;
     }
