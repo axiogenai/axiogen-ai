@@ -137,7 +137,8 @@ async function runForgePipeline() {
 
 async function callAgent(agentKey, context, modelOverride) {
     const agent = AGENTS[agentKey];
-    const apiKey = localStorage.getItem('AXIOGEN_api_key');
+    const envKeys = (import.meta.env.VITE_OPENROUTER_KEYS || import.meta.env.VITE_OPENROUTER_API_KEY || '').split(',').filter(k => k.trim());
+    const apiKey = localStorage.getItem('AXIOGEN_api_key') || envKeys[0] || '';
     if (!apiKey) throw new Error('API Key is missing. Please set it in Settings.');
 
     try {
