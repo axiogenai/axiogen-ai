@@ -241,27 +241,18 @@ function _startRenderLoop() {
         ringsUniforms.uColorTwo.value.lerp(targetColorTwo, 0.05);
         ringsUniforms.uTime.value = t * 0.001 * targetSpeed;
 
-        let ringsFreqData = null;
         if (analyserNode && (visualizerState === 'listening' || visualizerState === 'speaking')) {
-            ringsFreqData = new Uint8Array(analyserNode.frequencyBinCount);
-            analyserNode.getByteFrequencyData(ringsFreqData);
-        } else if (visualizerState === 'listening' || visualizerState === 'speaking') {
-            ringsFreqData = new Uint8Array(128);
-            const baseTime = vizTime * 6;
-            for (let j = 0; j < 128; j++) {
-                const noise = Math.abs(Math.sin(j * 0.15 + baseTime) * Math.cos(j * 0.4 - baseTime * 1.8)) * 140;
-                const rapidJitter = Math.abs(Math.sin(j * 0.8 + baseTime * 3)) * 60;
-                const randomSpike = Math.random() < 0.15 ? Math.random() * 80 : 0;
-                ringsFreqData[j] = Math.min(255, noise + rapidJitter + randomSpike);
-            }
-        }
-
-        if (ringsFreqData) {
+            const freqData = new Uint8Array(analyserNode.frequencyBinCount);
+            analyserNode.getByteFrequencyData(freqData);
             let sum = 0;
-            for (let i = 0; i < ringsFreqData.length; i++) sum += ringsFreqData[i];
-            const avg = sum / ringsFreqData.length;
+            for (let i = 0; i < freqData.length; i++) sum += freqData[i];
+            const avg = sum / freqData.length;
             ringsUniforms.uScaleRate.value  = 0.1 + (avg / 255) * 0.4;
             ringsUniforms.uBaseRadius.value = 0.35 + (avg / 255) * 0.1;
+        } else if (visualizerState === 'listening' || visualizerState === 'speaking') {
+            const simAvg = (Math.sin(vizTime * 4) + 1) / 2 * 120 + (Math.cos(vizTime * 7) + 1) / 2 * 40;
+            ringsUniforms.uScaleRate.value  = 0.1 + (simAvg / 255) * 0.4;
+            ringsUniforms.uBaseRadius.value = 0.35 + (simAvg / 255) * 0.1;
         } else {
             ringsUniforms.uScaleRate.value  = 0.1;
             ringsUniforms.uBaseRadius.value = 0.35;
@@ -289,22 +280,13 @@ function _startRenderLoop() {
             if (analyserNode && (visualizerState === 'listening' || visualizerState === 'speaking')) {
                 freqData = new Uint8Array(analyserNode.frequencyBinCount);
                 analyserNode.getByteFrequencyData(freqData);
-            } else if (visualizerState === 'listening' || visualizerState === 'speaking') {
-                freqData = new Uint8Array(128);
-                const baseTime = vizTime * 6;
-                for (let j = 0; j < 128; j++) {
-                    const noise = Math.abs(Math.sin(j * 0.15 + baseTime) * Math.cos(j * 0.4 - baseTime * 1.8)) * 140;
-                    const rapidJitter = Math.abs(Math.sin(j * 0.8 + baseTime * 3)) * 60;
-                    const randomSpike = Math.random() < 0.15 ? Math.random() * 80 : 0;
-                    freqData[j] = Math.min(255, noise + rapidJitter + randomSpike);
-                }
             }
 
             ctx.shadowBlur  = 12;
             ctx.shadowColor = th.stroke;
             ctx.beginPath();
 
-            const N = 128;
+            const N = 80;
             for (let i = 0; i < N; i++) {
                 const angle = (i / N) * Math.PI * 2;
                 let mod = 0;
