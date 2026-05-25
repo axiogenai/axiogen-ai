@@ -208,6 +208,11 @@ function initVisualizer() {
 
 async function startAudioCapture() {
     try {
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+            console.log('[LUST] Mobile device detected. Skipping getUserMedia to avoid SpeechRecognition conflicts.');
+            return;
+        }
         if (audioCtx) {
             if (audioCtx.state === 'suspended') await audioCtx.resume();
             return;
@@ -260,6 +265,10 @@ function _startRenderLoop() {
             const avg = sum / freqData.length;
             ringsUniforms.uScaleRate.value = 0.1 + (avg / 255) * 0.4;
             ringsUniforms.uBaseRadius.value = 0.35 + (avg / 255) * 0.1;
+        } else if (visualizerState === 'listening' || visualizerState === 'speaking') {
+            const simAvg = (Math.sin(vizTime * 4) + 1) / 2 * 120 + (Math.cos(vizTime * 7) + 1) / 2 * 40;
+            ringsUniforms.uScaleRate.value = 0.1 + (simAvg / 255) * 0.4;
+            ringsUniforms.uBaseRadius.value = 0.35 + (simAvg / 255) * 0.1;
         } else {
             ringsUniforms.uScaleRate.value = 0.1;
             ringsUniforms.uBaseRadius.value = 0.35;
