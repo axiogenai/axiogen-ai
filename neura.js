@@ -569,7 +569,14 @@ export function setupNeura(state) {
     recognition.onresult = _handleRecognitionResult;
     recognition.onerror  = _handleRecognitionError;
     recognition.onend    = () => {
-        if (isNeuraActive && !isThinking && !processingLock) _scheduleRestart();
+        if (isNeuraActive && !isThinking && !processingLock) {
+            _scheduleRestart();
+        } else {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile && isNeuraActive) {
+                startAudioCapture();
+            }
+        }
     };
 }
 
@@ -629,6 +636,10 @@ function _triggerProcess(text) {
     if (processingLock) return;
     processingLock = true;
     try { recognition.stop(); } catch (_) {}
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+        startAudioCapture();
+    }
     processUserSpeech(text);
 }
 
@@ -671,7 +682,10 @@ function _startNeura() {
     isThinking      = false;
     processingLock  = false;
     restartAttempts = 0;
-    startAudioCapture();
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!isMobile) {
+        startAudioCapture();
+    }
     if (!recognition) { setStatus('Voice not supported in this browser.'); return; }
     try {
         recognition.start();
@@ -718,6 +732,10 @@ function _scheduleRestart() {
     const jitter    = Math.random() * 200;
     const delay     = baseDelay + jitter;
     try { recognition.stop(); } catch (_) {}
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+        stopAudioCapture();
+    }
     setTimeout(() => {
         if (!isNeuraActive) return;
         try {
