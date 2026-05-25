@@ -595,7 +595,14 @@ export function setupNsfw(state) {
     recognition.onresult = _handleRecognitionResult;
     recognition.onerror  = _handleRecognitionError;
     recognition.onend    = () => {
-        if (isNsfwActive && !isThinking && !processingLock) _scheduleRestart();
+        if (isNsfwActive && !isThinking && !processingLock) {
+            _scheduleRestart();
+        } else {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile && isNsfwActive) {
+                startAudioCapture();
+            }
+        }
     };
 }
 
@@ -656,6 +663,10 @@ function _triggerProcess(text) {
     if (processingLock) return;
     processingLock = true;
     try { recognition.stop(); } catch (_) {}
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+        startAudioCapture();
+    }
     processUserSpeech(text);
 }
 
@@ -700,7 +711,10 @@ function _startNsfw() {
     isThinking     = false;
     processingLock = false;
     restartAttempts= 0;
-    startAudioCapture();
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (!isMobile) {
+        startAudioCapture();
+    }
 
     if (!recognition) { setStatus('Voice not supported.'); return; }
 
@@ -754,6 +768,10 @@ function _scheduleRestart() {
     const delay     = baseDelay + jitter;
 
     try { recognition.stop(); } catch (_) {}
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    if (isMobile) {
+        stopAudioCapture();
+    }
 
     setTimeout(() => {
         if (!isNsfwActive) return;
