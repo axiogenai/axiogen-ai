@@ -25,7 +25,6 @@ let silenceTimer        = null;
 let lastInterimText     = '';
 let detectedLang        = 'en-US';
 let currentGenerationId = 0;
-let lastUserSpeechTime  = 0;
 
 const MAX_RESTARTS    = 15;
 const BASE_RESTART_MS = 350;
@@ -246,15 +245,8 @@ function _startRenderLoop() {
             ringsUniforms.uScaleRate.value  = 0.1 + (avg / 255) * 0.4;
             ringsUniforms.uBaseRadius.value = 0.35 + (avg / 255) * 0.1;
         } else {
-            let avg = 0;
-            const isUserSpeaking = (Date.now() - lastUserSpeechTime < 1200);
-            if (visualizerState === 'speaking' && isSpeaking()) {
-                avg = 60 + Math.sin(t * 0.01) * 25 + (Math.random() - 0.5) * 15;
-            } else if (visualizerState === 'listening' && isUserSpeaking) {
-                avg = 50 + Math.sin(t * 0.015) * 20 + (Math.random() - 0.5) * 10;
-            }
-            ringsUniforms.uScaleRate.value  = 0.1 + (avg / 255) * 0.4;
-            ringsUniforms.uBaseRadius.value = 0.35 + (avg / 255) * 0.1;
+            ringsUniforms.uScaleRate.value  = 0.1;
+            ringsUniforms.uBaseRadius.value = 0.35;
         }
 
         if (visualizerCanvas && visualizerCtx) {
@@ -294,17 +286,7 @@ function _startRenderLoop() {
                         const idx = Math.floor((i % (N / 2)) / (N / 2) * freqData.length);
                         mod = (freqData[idx] / 255) * 45;
                     } else {
-                        let amplitude = 0.2;
-                        const isUserSpeaking = (Date.now() - lastUserSpeechTime < 1200);
-                        if (visualizerState === 'speaking' && isSpeaking()) {
-                            amplitude = 1.1 + Math.sin(vizTime * 2.5) * 0.3 + (Math.random() - 0.5) * 0.2;
-                        } else if (visualizerState === 'listening' && isUserSpeaking) {
-                            amplitude = 0.9 + Math.sin(vizTime * 3) * 0.25 + (Math.random() - 0.5) * 0.15;
-                        }
-                        const symI = i % (N / 2);
-                        const baseWave = Math.sin(angle * 2 + vizTime * 2) * 3;
-                        const spikes = Math.abs(Math.sin(symI * 1.8 + vizTime * 14)) * 28 * (Math.sin(symI * 0.35 + vizTime * 4) * 0.5 + 0.5);
-                        mod = Math.max(0, baseWave + spikes) * amplitude;
+                        mod = Math.sin(angle * 6 + vizTime * 2.5) * 6 + Math.cos(angle * 3 - vizTime * 3) * 3;
                     }
                 } else if (visualizerState === 'thinking') {
                     mod = Math.sin(angle * 5 + vizTime * 3.5) * 9 + Math.cos(angle * 2 - vizTime * 2) * 5;
@@ -595,7 +577,6 @@ export function setupNeura(state) {
 
 function _handleRecognitionResult(event) {
     if (!isNeuraActive) return;
-    lastUserSpeechTime = Date.now();
 
     let interim = '';
     let final_  = '';
