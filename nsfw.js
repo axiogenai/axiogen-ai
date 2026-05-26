@@ -814,7 +814,10 @@ function _startNsfw() {
         console.warn('[LUST] start() failed, retrying:', e.message);
         setTimeout(() => {
             if (!isNsfwActive) return;
-            try { recognition.start(); } catch (e2) {
+            try { 
+                stopAudioCapture();
+                recognition.start(); 
+            } catch (e2) {
                 setStatus('Voice engine error. Please refresh.');
             }
         }, 500);
@@ -862,6 +865,7 @@ function _scheduleRestart() {
     setTimeout(() => {
         if (!isNsfwActive) return;
         try {
+            stopAudioCapture();
             recognition.lang = detectedLang;
             recognition.start();
         } catch (e) {
