@@ -205,10 +205,33 @@ function init() {
     const voiceInputBtn = document.getElementById('voice-input-btn');
     let recognition = null;
     let isListening = false;
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 
-    if (voiceInputBtn && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
+    function resetMicUI() {
+        isListening = false;
+        if (voiceInputBtn) {
+            voiceInputBtn.style.color = '';
+            voiceInputBtn.style.animation = '';
+            voiceInputBtn.title = 'Voice Input';
+        }
+    }
+
+    function destroyRecognition() {
+        if (recognition) {
+            try { recognition.onstart = null; } catch(_) {}
+            try { recognition.onresult = null; } catch(_) {}
+            try { recognition.onend = null; } catch(_) {}
+            try { recognition.onerror = null; } catch(_) {}
+            try { recognition.abort(); } catch(_) {}
+            recognition = null;
+        }
+        resetMicUI();
+    }
+
+    function startFreshRecognition() {
+        destroyRecognition();
+
+        recognition = new SpeechRecognitionAPI();
         recognition.continuous = false;
         recognition.interimResults = true;
         recognition.lang = 'en-US';
@@ -232,51 +255,47 @@ function init() {
         };
 
         recognition.onend = () => {
-            isListening = false;
-            voiceInputBtn.style.color = '';
-            voiceInputBtn.style.animation = '';
-            voiceInputBtn.title = 'Voice Input';
+            resetMicUI();
+            recognition = null;
         };
 
         recognition.onerror = (event) => {
             console.warn('Speech recognition error:', event.error);
-            isListening = false;
-            voiceInputBtn.style.color = '';
-            voiceInputBtn.style.animation = '';
-            voiceInputBtn.title = 'Voice Input';
+            resetMicUI();
+            recognition = null;
             
             if (event.error === 'not-allowed') {
-                showToast('Microphone access denied. Please check your browser settings.');
+                showToast('Microphone access denied. Please allow mic in browser settings.');
+            } else if (event.error === 'aborted') {
+                // User or system aborted — silent
             } else if (event.error !== 'no-speech') {
-                showToast('Microphone error: ' + event.error);
+                showToast('Mic error: ' + event.error);
             }
         };
 
-        const toggleMic = () => {
+        try {
+            recognition.start();
+        } catch(err) {
+            console.error("Mic start error:", err);
+            showToast("Could not start microphone. Close other tabs using the mic and retry.");
+            resetMicUI();
+            recognition = null;
+        }
+    }
+
+    if (voiceInputBtn && SpeechRecognitionAPI) {
+        voiceInputBtn.addEventListener('click', () => {
             if (isListening) {
-                try { recognition.stop(); } catch(err) {}
+                // Stop current session
+                destroyRecognition();
             } else {
-                // Cancel any active text-to-speech first — on mobile Chrome,
-                // SpeechSynthesis and SpeechRecognition share the audio pipeline
-                // and cannot run simultaneously.
-                try { stopSpeaking(); } catch(err) {}
-                try { window.speechSynthesis.cancel(); } catch(err) {}
-                // Abort any lingering recognition session
-                try { recognition.abort(); } catch(err) {}
-                // Give Chrome time to fully release the audio resource
-                setTimeout(() => {
-                    try { 
-                        recognition.start(); 
-                    } catch(err) {
-                        console.error("Mic start error:", err);
-                        showToast("Could not start microphone. Try reloading the page.");
-                    }
-                }, 250);
+                // Kill any active TTS first — Chrome mobile shares the audio pipeline
+                try { stopSpeaking(); } catch(_) {}
+                try { window.speechSynthesis.cancel(); } catch(_) {}
+                // Wait for Chrome to fully release the audio resource, then start fresh
+                setTimeout(startFreshRecognition, 400);
             }
-        };
-
-        voiceInputBtn.addEventListener('click', toggleMic);
-        
+        });
     } else if (voiceInputBtn) {
         // Browser doesn't support Speech API
         voiceInputBtn.addEventListener('click', () => {
