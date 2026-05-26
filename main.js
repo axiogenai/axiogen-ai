@@ -252,31 +252,28 @@ function init() {
             }
         };
 
-        const toggleMic = (e) => {
-            if (e) e.preventDefault();
+        const toggleMic = () => {
             if (isListening) {
                 try { recognition.stop(); } catch(err) {}
             } else {
-                try { 
-                    recognition.start(); 
-                } catch(err) {
-                    console.error("Mic start error:", err);
-                    showToast("Could not start microphone. Try reloading the page.");
-                }
+                // Abort any lingering session before starting fresh
+                try { recognition.abort(); } catch(err) {}
+                setTimeout(() => {
+                    try { 
+                        recognition.start(); 
+                    } catch(err) {
+                        console.error("Mic start error:", err);
+                        showToast("Could not start microphone. Try reloading the page.");
+                    }
+                }, 100);
             }
         };
 
         voiceInputBtn.addEventListener('click', toggleMic);
-        voiceInputBtn.addEventListener('touchstart', (e) => {
-            // Prevent double firing if click also fires
-            e.preventDefault();
-            toggleMic();
-        }, { passive: false });
         
     } else if (voiceInputBtn) {
         // Browser doesn't support Speech API
-        const handleUnsupported = (e) => {
-            if (e) e.preventDefault();
+        voiceInputBtn.addEventListener('click', () => {
             voiceInputBtn.style.color = '#ff4444';
             voiceInputBtn.title = 'Voice not supported in this browser';
             showToast('Voice dictation is not supported on this browser or requires HTTPS.');
@@ -284,9 +281,7 @@ function init() {
                 voiceInputBtn.style.color = '';
                 voiceInputBtn.title = 'Voice Input';
             }, 2000);
-        };
-        voiceInputBtn.addEventListener('click', handleUnsupported);
-        voiceInputBtn.addEventListener('touchstart', handleUnsupported, { passive: false });
+        });
     }
 
     // ─── Enhance Prompt Button ─────────────────────────────────────
