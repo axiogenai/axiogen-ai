@@ -581,20 +581,22 @@ function _handleRecognitionResult(event) {
     let interim = '';
     let final_  = '';
 
-    for (let i = event.resultIndex; i < event.results.length; i++) {
+    for (let i = 0; i < event.results.length; i++) {
         const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) final_  += transcript;
-        else                           interim += transcript;
+        if (event.results[i].isFinal) final_  += transcript + ' ';
+        else                           interim += transcript + ' ';
     }
 
-    const fullText = (interim || final_).trim().toLowerCase();
-    if (/\b(stop|shut up|shutup|quiet|shut down|shutdown|turn off|stop speaking|abort)\b/.test(fullText)) {
+    const combinedText = (final_ + interim).trim();
+    const combinedLower = combinedText.toLowerCase();
+
+    if (/\b(stop|shut up|shutup|quiet|shut down|shutdown|turn off|stop speaking|abort)\b/.test(combinedLower)) {
         resetBtn();
         _stopNeura();
         return;
     }
 
-    const wordCount = (interim || final_).trim().split(/\s+/).filter(Boolean).length;
+    const wordCount = combinedText.split(/\s+/).filter(Boolean).length;
     if (isSpeaking() && wordCount >= INTERRUPT_WORDS) {
         stopSpeaking();
         resetSubtitleTypewriter();
@@ -606,24 +608,15 @@ function _handleRecognitionResult(event) {
         setStatus('NEURA is listening…');
     }
 
-    if (interim.trim()) {
-        lastInterimText = interim.trim();
-        setUserSubtitle(lastInterimText, true);
-        const silenceMs = interim.length > 60 ? SILENCE_MS_SHORT : SILENCE_MS_LONG;
+    if (combinedText) {
+        setUserSubtitle(combinedText, interim.trim().length > 0);
+        const silenceMs = combinedText.length > 60 ? SILENCE_MS_SHORT : SILENCE_MS_LONG;
         clearTimeout(silenceTimer);
         silenceTimer = setTimeout(() => {
-            if (lastInterimText.length > 2 && !isThinking && !processingLock && isNeuraActive) {
-                _triggerProcess(lastInterimText);
+            if (combinedText.length > 2 && !isThinking && !processingLock && isNeuraActive) {
+                _triggerProcess(combinedText);
             }
         }, silenceMs);
-    }
-
-    if (final_.trim()) {
-        clearTimeout(silenceTimer);
-        const text = final_.trim();
-        setUserSubtitle(text, false);
-        lastInterimText = '';
-        if (!isThinking && !processingLock && isNeuraActive) _triggerProcess(text);
     }
 }
 
