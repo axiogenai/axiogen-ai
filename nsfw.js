@@ -215,23 +215,11 @@ function initVisualizer() {
 }
 
 async function startAudioCapture() {
-    try {
-        if (audioCtx) {
-            if (audioCtx.state === 'suspended') await audioCtx.resume();
-            return;
-        }
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        if (!AudioCtx) return;
-        audioStream   = await navigator.mediaDevices.getUserMedia({ audio: true });
-        audioCtx      = new AudioCtx();
-        analyserNode  = audioCtx.createAnalyser();
-        analyserNode.fftSize = 256;
-        sourceNode    = audioCtx.createMediaStreamSource(audioStream);
-        sourceNode.connect(analyserNode);
-    } catch (e) {
-        console.warn('[LUST] Audio capture unavailable:', e.message);
-        _releaseAudio();
-    }
+    // CRITICAL FIX: Do NOT use getUserMedia() on mobile/Chrome.
+    // Chrome holding the microphone via getUserMedia completely blocks the 
+    // Android SpeechRecognition API ("speech recognition and synthesis from google cannot record now").
+    // The visualizer will safely fall back to its synthetic animation loop when freqData is null.
+    return;
 }
 
 function _releaseAudio() {
