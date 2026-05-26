@@ -591,8 +591,7 @@ export function setupNsfw(state) {
         setOrbState('listening');
         setStatus('LUST is listening…');
     };
-    recognition.onspeechstart = () => { lastUserSpeechTime = Date.now(); };
-    recognition.onsoundstart = () => { lastUserSpeechTime = Date.now(); };
+
     recognition.onresult = _handleRecognitionResult;
     recognition.onerror  = _handleRecognitionError;
     recognition.onend    = () => {
@@ -602,7 +601,6 @@ export function setupNsfw(state) {
 
 function _handleRecognitionResult(event) {
     if (!isNsfwActive) return;
-    lastUserSpeechTime = Date.now();
 
     let interim = '';
     let final_  = '';
@@ -658,7 +656,6 @@ function _triggerProcess(text) {
     if (processingLock) return;
     processingLock = true;
     try { recognition.stop(); } catch (_) {}
-    startAudioCapture();
     processUserSpeech(text);
 }
 
@@ -703,7 +700,7 @@ function _startNsfw() {
     isThinking     = false;
     processingLock = false;
     restartAttempts= 0;
-    stopAudioCapture();
+    startAudioCapture();
 
     if (!recognition) { setStatus('Voice not supported.'); return; }
 
@@ -713,10 +710,7 @@ function _startNsfw() {
         console.warn('[LUST] start() failed, retrying:', e.message);
         setTimeout(() => {
             if (!isNsfwActive) return;
-            try {
-                stopAudioCapture();
-                recognition.start();
-            } catch (e2) {
+            try { recognition.start(); } catch (e2) {
                 setStatus('Voice engine error. Please refresh.');
             }
         }, 500);
@@ -764,7 +758,6 @@ function _scheduleRestart() {
     setTimeout(() => {
         if (!isNsfwActive) return;
         try {
-            stopAudioCapture();
             recognition.lang = detectedLang;
             recognition.start();
         } catch (e) {
