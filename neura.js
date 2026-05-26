@@ -566,8 +566,6 @@ export function setupNeura(state) {
         setOrbState('listening');
         setStatus('NEURA is listening…');
     };
-    recognition.onspeechstart = () => { lastUserSpeechTime = Date.now(); };
-    recognition.onsoundstart = () => { lastUserSpeechTime = Date.now(); };
     recognition.onresult = _handleRecognitionResult;
     recognition.onerror  = _handleRecognitionError;
     recognition.onend    = () => {
@@ -631,7 +629,6 @@ function _triggerProcess(text) {
     if (processingLock) return;
     processingLock = true;
     try { recognition.stop(); } catch (_) {}
-    startAudioCapture();
     processUserSpeech(text);
 }
 
@@ -674,7 +671,7 @@ function _startNeura() {
     isThinking      = false;
     processingLock  = false;
     restartAttempts = 0;
-    stopAudioCapture();
+    startAudioCapture();
     if (!recognition) { setStatus('Voice not supported in this browser.'); return; }
     try {
         recognition.start();
@@ -682,10 +679,7 @@ function _startNeura() {
         console.warn('[NEURA] start() failed, retrying:', e.message);
         setTimeout(() => {
             if (!isNeuraActive) return;
-            try {
-                stopAudioCapture();
-                recognition.start();
-            }
+            try { recognition.start(); }
             catch (e2) { setStatus('Voice engine error. Please refresh the page.'); }
         }, 500);
     }
@@ -727,7 +721,6 @@ function _scheduleRestart() {
     setTimeout(() => {
         if (!isNeuraActive) return;
         try {
-            stopAudioCapture();
             recognition.lang = detectedLang;
             recognition.start();
         } catch (e) {
