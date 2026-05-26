@@ -695,15 +695,18 @@ export function setupNsfw(state) {
 
     recognition.onstart  = () => {
         restartAttempts = 0;
-        setOrbState('listening');
-        setStatus('Listening…');
+        const isResponding = isSpeaking() || isThinking || processingLock;
+        if (!isResponding) {
+            setOrbState('listening');
+            setStatus('Listening…');
+        }
     };
     recognition.onspeechstart = () => { lastUserSpeechTime = Date.now(); };
     recognition.onsoundstart = () => { lastUserSpeechTime = Date.now(); };
     recognition.onresult = _handleRecognitionResult;
     recognition.onerror  = _handleRecognitionError;
     recognition.onend    = () => {
-        if (isNsfwActive && !isThinking && !processingLock) _scheduleRestart();
+        if (isNsfwActive) _scheduleRestart();
     };
 }
 
@@ -793,7 +796,7 @@ function _handleRecognitionError(event) {
     console.warn('[LUST] Recognition error:', err);
 
     if (err === 'no-speech' || err === 'aborted') {
-        if (isNsfwActive && !isThinking) _scheduleRestart();
+        if (isNsfwActive) _scheduleRestart();
         return;
     }
 
