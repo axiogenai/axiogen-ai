@@ -293,9 +293,15 @@ function _startRenderLoop() {
             const theme2D = THEME[visualizerState] || THEME.idle;
 
             let freqData = null;
+            let avgFreq = 0;
             if (analyserNode && (visualizerState === 'speaking')) {
                 freqData = new Uint8Array(analyserNode.frequencyBinCount);
                 analyserNode.getByteFrequencyData(freqData);
+                let sum = 0;
+                for (let i = 0; i < freqData.length; i++) {
+                    sum += freqData[i];
+                }
+                avgFreq = sum / freqData.length;
             }
 
             ctx.shadowBlur  = 12;
@@ -308,11 +314,12 @@ function _startRenderLoop() {
                 let mod = 0;
 
                 if (visualizerState === 'speaking') {
-                    if (freqData) {
+                    if (freqData && avgFreq > 2) {
                         const idx = Math.floor((i % (N / 2)) / (N / 2) * freqData.length);
                         mod = (freqData[idx] / 255) * 45;
                     } else {
-                        mod = Math.sin(angle * 6 + vizTime * 2.5) * 6 + Math.cos(angle * 3 - vizTime * 3) * 3;
+                        // Simulated speech spikes (aggressive)
+                        mod = Math.sin(angle * 8 + vizTime * 5) * 14 + Math.cos(angle * 4 - vizTime * 4) * 8;
                     }
                 } else if (visualizerState === 'thinking') {
                     mod = Math.sin(angle * 5 + vizTime * 3.5) * 9 + Math.cos(angle * 2 - vizTime * 2) * 5;
