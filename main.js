@@ -1086,7 +1086,7 @@ function getTrivialResponse(text) {
         'your name', 'who created you', 'who made you'
     ];
     if (identityQuestions.includes(cleaned)) {
-        return "I am AXIOGEN, an advanced intelligence running on the AXIOGEN Intelligent Platform. I specialize in deep research, code generation, and complex analysis.";
+        return "I am AXIOGEN, an advanced intelligence running on the AXIOGEN Intelligent Platform. I specialize in deep research, code generation, and complex analysis. I was created by Aditya.";
     }
 
     // 5. Thanks
@@ -1320,7 +1320,10 @@ async function streamResponse() {
 
         // High-speed rendering loop
         const renderLoop = () => {
-            if (!isRendering && renderBuffer.length === 0) return;
+            if (!isRendering && renderBuffer.length === 0) {
+                if (!state.tutorActivated) addCopyButtons(aiContentDiv);
+                return;
+            }
 
             if (renderBuffer.length > 0) {
                 // Take a small chunk for high-speed typing effect
@@ -1398,9 +1401,8 @@ async function streamResponse() {
 
         if (voiceBtn) voiceBtn.style.display = hasContent ? 'none' : 'flex';
         if (sendBtn) sendBtn.style.display = hasContent ? 'flex' : 'none';
-
-        // Add copy buttons to code blocks
-        addCopyButtons(aiContentDiv);
+        
+        isRendering = false;
         
         // Add full action bar ONLY when expert tutor is NOT active (it adds its own after finishing)
         if (fullText.length > 5 && !state.tutorActivated) {
@@ -1459,10 +1461,8 @@ function addMessageToUI(role, content) {
         if (userHTML.includes('attachment-pill')) {
             userHTML = userHTML.replace(/(<div class="attachment-pill"[\s\S]*?<\/div>)+/g, '<div class="attachments-container" style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-bottom: 8px;">$&</div>');
         }
-        // Format basic line breaks
-        userHTML = userHTML.replace(/\n/g, '<br>');
-        // Use a div with text-align right instead of p to avoid invalid nesting and fulfill the user's alignment request
-        contentDiv.innerHTML = `<div style="text-align: right; word-break: break-word;">${userHTML}</div>`;
+        // Use a div with text-align left and white-space pre-wrap to properly format pasted code
+        contentDiv.innerHTML = `<div style="text-align: left; word-break: break-word; white-space: pre-wrap; font-family: inherit;">${userHTML}</div>`;
     } else {
         contentDiv.innerHTML = typeof marked !== 'undefined' ? marked.parse(content) : content;
     }
