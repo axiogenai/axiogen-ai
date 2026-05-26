@@ -225,8 +225,10 @@ function init() {
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 transcript += event.results[i][0].transcript;
             }
-            chatInput.value = transcript;
-            chatInput.dispatchEvent(new Event('input'));
+            if (transcript) {
+                chatInput.value = transcript;
+                chatInput.dispatchEvent(new Event('input'));
+            }
         };
 
         recognition.onend = () => {
@@ -242,25 +244,49 @@ function init() {
             voiceInputBtn.style.color = '';
             voiceInputBtn.style.animation = '';
             voiceInputBtn.title = 'Voice Input';
+            
+            if (event.error === 'not-allowed') {
+                showToast('Microphone access denied. Please check your browser settings.');
+            } else if (event.error !== 'no-speech') {
+                showToast('Microphone error: ' + event.error);
+            }
         };
 
-        voiceInputBtn.addEventListener('click', () => {
+        const toggleMic = (e) => {
+            if (e) e.preventDefault();
             if (isListening) {
-                recognition.stop();
+                try { recognition.stop(); } catch(err) {}
             } else {
-                recognition.start();
+                try { 
+                    recognition.start(); 
+                } catch(err) {
+                    console.error("Mic start error:", err);
+                    showToast("Could not start microphone. Try reloading the page.");
+                }
             }
-        });
+        };
+
+        voiceInputBtn.addEventListener('click', toggleMic);
+        voiceInputBtn.addEventListener('touchstart', (e) => {
+            // Prevent double firing if click also fires
+            e.preventDefault();
+            toggleMic();
+        }, { passive: false });
+        
     } else if (voiceInputBtn) {
         // Browser doesn't support Speech API
-        voiceInputBtn.addEventListener('click', () => {
+        const handleUnsupported = (e) => {
+            if (e) e.preventDefault();
             voiceInputBtn.style.color = '#ff4444';
             voiceInputBtn.title = 'Voice not supported in this browser';
+            showToast('Voice dictation is not supported on this browser or requires HTTPS.');
             setTimeout(() => {
                 voiceInputBtn.style.color = '';
                 voiceInputBtn.title = 'Voice Input';
             }, 2000);
-        });
+        };
+        voiceInputBtn.addEventListener('click', handleUnsupported);
+        voiceInputBtn.addEventListener('touchstart', handleUnsupported, { passive: false });
     }
 
     // ─── Enhance Prompt Button ─────────────────────────────────────
