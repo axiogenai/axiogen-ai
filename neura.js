@@ -566,15 +566,18 @@ export function setupNeura(state) {
 
     recognition.onstart  = () => {
         restartAttempts = 0;
-        setOrbState('listening');
-        setStatus('NEURA is listening…');
+        const isResponding = isSpeaking() || isThinking || processingLock;
+        if (!isResponding) {
+            setOrbState('listening');
+            setStatus('NEURA is listening…');
+        }
     };
     recognition.onspeechstart = () => { lastUserSpeechTime = Date.now(); };
     recognition.onsoundstart = () => { lastUserSpeechTime = Date.now(); };
     recognition.onresult = _handleRecognitionResult;
     recognition.onerror  = _handleRecognitionError;
     recognition.onend    = () => {
-        if (isNeuraActive && !isThinking && !processingLock) _scheduleRestart();
+        if (isNeuraActive) _scheduleRestart();
     };
 }
 
@@ -663,7 +666,7 @@ function _handleRecognitionError(event) {
     const err = event.error;
     console.warn('[NEURA] Recognition error:', err);
     if (err === 'no-speech' || err === 'aborted') {
-        if (isNeuraActive && !isThinking) _scheduleRestart();
+        if (isNeuraActive) _scheduleRestart();
         return;
     }
     if (err === 'not-allowed' || err === 'service-not-allowed') {
