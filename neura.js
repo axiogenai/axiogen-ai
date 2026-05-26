@@ -8,7 +8,7 @@
  *  ✅ All other logic preserved exactly
  */
 
-import { speak, stopSpeaking, isSpeaking, segmentText, cleanTextForSpeech } from './voice.js';
+import { speak, stopSpeaking, isSpeaking, segmentText, cleanTextForSpeech, prefetchSpeech } from './voice.js';
 import * as THREE from 'three';
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -610,7 +610,7 @@ function _handleRecognitionResult(event) {
         stopSpeaking();
         resetSubtitleTypewriter();
         setUserSubtitle('');
-        setResponseSubtitle('');
+        setResponseSubtitle('<span class="subtitle-hint">Keep speaking...</span>');
         neuraAbortController?.abort();
         isThinking     = false;
         processingLock = false;
@@ -633,7 +633,7 @@ function _handleRecognitionResult(event) {
         stopSpeaking();
         resetSubtitleTypewriter();
         setUserSubtitle('');
-        setResponseSubtitle('');
+        setResponseSubtitle('<span class="subtitle-hint">Keep speaking...</span>');
         neuraAbortController?.abort();
         isThinking     = false;
         processingLock = false;
@@ -984,10 +984,13 @@ async function processUserSpeech(text) {
                 if (segs.length) {
                     while (ttsQueue.length >= MAX_QUEUE) ttsQueue.shift();
                     ttsQueue.push(...segs);
+                    segs.forEach(s => prefetchSpeech(cleanTextForSpeech(s)));
                     buffered = '';
                     drainQueue();
                 } else if (buffered.trim().length > 1) {
+                    const cleanSeg = cleanTextForSpeech(buffered.trim());
                     ttsQueue.push(buffered.trim());
+                    prefetchSpeech(cleanSeg);
                     buffered = '';
                     drainQueue();
                 }
@@ -1002,6 +1005,7 @@ async function processUserSpeech(text) {
             if (segs.length) {
                 while (ttsQueue.length >= MAX_QUEUE) ttsQueue.shift();
                 ttsQueue.push(...segs);
+                segs.forEach(s => prefetchSpeech(cleanTextForSpeech(s)));
                 buffered = remainder;
                 drainQueue();
             }
