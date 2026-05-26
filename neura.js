@@ -13,7 +13,7 @@ import * as THREE from 'three';
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
-export let recognition  = null;
+let recognition         = null;
 let isNeuraActive       = false;
 let neuraAbortController= null;
 let isThinking          = false;
@@ -192,11 +192,23 @@ function initVisualizer() {
 }
 
 async function startAudioCapture() {
-    // CRITICAL FIX: Do NOT use getUserMedia() on mobile/Chrome.
-    // Chrome holding the microphone via getUserMedia completely blocks the 
-    // Android SpeechRecognition API ("speech recognition and synthesis from google cannot record now").
-    // The visualizer will safely fall back to its synthetic animation loop when freqData is null.
-    return;
+    try {
+        if (audioCtx) {
+            if (audioCtx.state === 'suspended') await audioCtx.resume();
+            return;
+        }
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (!AudioCtx) return;
+        audioStream  = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioCtx     = new AudioCtx();
+        analyserNode = audioCtx.createAnalyser();
+        analyserNode.fftSize = 256;
+        sourceNode   = audioCtx.createMediaStreamSource(audioStream);
+        sourceNode.connect(analyserNode);
+    } catch (e) {
+        console.warn('[NEURA] Audio capture unavailable:', e.message);
+        _releaseAudio();
+    }
 }
 
 function _releaseAudio() {
@@ -554,6 +566,8 @@ export function setupNeura(state) {
         setOrbState('listening');
         setStatus('NEURA is listening…');
     };
+    recognition.onspeechstart = () => { lastUserSpeechTime = Date.now(); };
+    recognition.onsoundstart = () => { lastUserSpeechTime = Date.now(); };
     recognition.onresult = _handleRecognitionResult;
     recognition.onerror  = _handleRecognitionError;
     recognition.onend    = () => {
@@ -617,6 +631,7 @@ function _triggerProcess(text) {
     if (processingLock) return;
     processingLock = true;
     try { recognition.stop(); } catch (_) {}
+    startAudioCapture();
     processUserSpeech(text);
 }
 
@@ -659,7 +674,7 @@ function _startNeura() {
     isThinking      = false;
     processingLock  = false;
     restartAttempts = 0;
-    startAudioCapture();
+    stopAudioCapture();
     if (!recognition) { setStatus('Voice not supported in this browser.'); return; }
     try {
         recognition.start();
@@ -667,7 +682,10 @@ function _startNeura() {
         console.warn('[NEURA] start() failed, retrying:', e.message);
         setTimeout(() => {
             if (!isNeuraActive) return;
-            try { recognition.start(); }
+            try {
+                stopAudioCapture();
+                recognition.start();
+            }
             catch (e2) { setStatus('Voice engine error. Please refresh the page.'); }
         }, 500);
     }
@@ -709,6 +727,7 @@ function _scheduleRestart() {
     setTimeout(() => {
         if (!isNeuraActive) return;
         try {
+            stopAudioCapture();
             recognition.lang = detectedLang;
             recognition.start();
         } catch (e) {
@@ -1180,14 +1199,7 @@ export function resetNeura() {
     neuraAbortController?.abort();
     neuraAbortController = null;
 
-    // Fully destroy recognition to release Chrome's audio pipeline
-    if (recognition) {
-        try { recognition.onstart = null; } catch (_) {}
-        try { recognition.onresult = null; } catch (_) {}
-        try { recognition.onend = null; } catch (_) {}
-        try { recognition.onerror = null; } catch (_) {}
-        try { recognition.abort(); } catch (_) {}
-    }
+    try { recognition?.stop(); } catch (_) {}
 
     setUserSubtitle('');
     setResponseSubtitle('<span class="subtitle-hint">Tap and start talking with NEURA</span>');
