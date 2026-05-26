@@ -261,7 +261,7 @@ function _startRenderLoop() {
 
         ringsUniforms.uTime.value = t * 0.001 * targetSpeed;
 
-        if (analyserNode && (visualizerState === 'listening' || visualizerState === 'speaking')) {
+        if (analyserNode && (visualizerState === 'speaking')) {
             const freqData = new Uint8Array(analyserNode.frequencyBinCount);
             analyserNode.getByteFrequencyData(freqData);
             let sum = 0;
@@ -293,7 +293,7 @@ function _startRenderLoop() {
             const theme2D = THEME[visualizerState] || THEME.idle;
 
             let freqData = null;
-            if (analyserNode && (visualizerState === 'listening' || visualizerState === 'speaking')) {
+            if (analyserNode && (visualizerState === 'speaking')) {
                 freqData = new Uint8Array(analyserNode.frequencyBinCount);
                 analyserNode.getByteFrequencyData(freqData);
             }
@@ -307,7 +307,7 @@ function _startRenderLoop() {
                 const angle = (i / N) * Math.PI * 2;
                 let mod = 0;
 
-                if (visualizerState === 'listening' || visualizerState === 'speaking') {
+                if (visualizerState === 'speaking') {
                     if (freqData) {
                         const idx = Math.floor((i % (N / 2)) / (N / 2) * freqData.length);
                         mod = (freqData[idx] / 255) * 45;
