@@ -5,8 +5,8 @@
 import { setupTestingUI } from './forge.js';
 import { setupCompilerUI } from './compiler.js';
 import { speak, stopSpeaking, isSpeaking, loadVoices, changeVoice, getAvailableVoices, getSelectedVoice, cleanTextForSpeech } from './voice.js';
-import { setupNeura, resetNeura, recognition as neuraRecognition } from './neura.js';
-import { setupNsfw, resetNsfw, recognition as nsfwRecognition } from './nsfw.js';
+import { setupNeura, resetNeura } from './neura.js';
+import { setupNsfw, resetNsfw } from './nsfw.js';
 
 let savedHistory = [];
 try {
@@ -205,33 +205,10 @@ function init() {
     const voiceInputBtn = document.getElementById('voice-input-btn');
     let recognition = null;
     let isListening = false;
-    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition || null;
 
-    function resetMicUI() {
-        isListening = false;
-        if (voiceInputBtn) {
-            voiceInputBtn.style.color = '';
-            voiceInputBtn.style.animation = '';
-            voiceInputBtn.title = 'Voice Input';
-        }
-    }
-
-    function destroyRecognition() {
-        if (recognition) {
-            try { recognition.onstart = null; } catch(_) {}
-            try { recognition.onresult = null; } catch(_) {}
-            try { recognition.onend = null; } catch(_) {}
-            try { recognition.onerror = null; } catch(_) {}
-            try { recognition.abort(); } catch(_) {}
-            recognition = null;
-        }
-        resetMicUI();
-    }
-
-    function startFreshRecognition() {
-        destroyRecognition();
-
-        recognition = new SpeechRecognitionAPI();
+    if (voiceInputBtn && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
         recognition.continuous = false;
         recognition.interimResults = true;
         recognition.lang = 'en-US';
@@ -248,60 +225,30 @@ function init() {
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 transcript += event.results[i][0].transcript;
             }
-            if (transcript) {
-                chatInput.value = transcript;
-                chatInput.dispatchEvent(new Event('input'));
-            }
+            chatInput.value = transcript;
+            chatInput.dispatchEvent(new Event('input'));
         };
 
         recognition.onend = () => {
-            resetMicUI();
-            recognition = null;
+            isListening = false;
+            voiceInputBtn.style.color = '';
+            voiceInputBtn.style.animation = '';
+            voiceInputBtn.title = 'Voice Input';
         };
 
         recognition.onerror = (event) => {
             console.warn('Speech recognition error:', event.error);
-            resetMicUI();
-            recognition = null;
-            
-            if (event.error === 'not-allowed') {
-                showToast('Microphone access denied. Please allow mic in browser settings.');
-            } else if (event.error === 'aborted') {
-                // User or system aborted — silent
-            } else if (event.error !== 'no-speech') {
-                showToast('Mic error: ' + event.error);
-            }
+            isListening = false;
+            voiceInputBtn.style.color = '';
+            voiceInputBtn.style.animation = '';
+            voiceInputBtn.title = 'Voice Input';
         };
 
-        try {
-            recognition.start();
-        } catch(err) {
-            console.error("Mic start error:", err);
-            showToast("Could not start microphone. Close other tabs using the mic and retry.");
-            resetMicUI();
-            recognition = null;
-        }
-    }
-
-    if (voiceInputBtn && SpeechRecognitionAPI) {
         voiceInputBtn.addEventListener('click', () => {
             if (isListening) {
-                // Stop current session
-                destroyRecognition();
+                recognition.stop();
             } else {
-                // Kill any active TTS first — Chrome mobile shares the audio pipeline
-                try { stopSpeaking(); } catch(_) {}
-                try { window.speechSynthesis.cancel(); } catch(_) {}
-                
-                // CRITICAL: Abort ALL other SpeechRecognition instances across the app.
-                // Chrome Android only allows ONE active speech session system-wide.
-                // NEURA and NSFW modules each have their own recognition instances
-                // that can hold Chrome's audio pipeline even after being "stopped".
-                resetNeura();
-                resetNsfw();
-                
-                // Wait for Chrome to fully release the audio resource, then start fresh
-                setTimeout(startFreshRecognition, 500);
+                recognition.start();
             }
         });
     } else if (voiceInputBtn) {
@@ -309,7 +256,6 @@ function init() {
         voiceInputBtn.addEventListener('click', () => {
             voiceInputBtn.style.color = '#ff4444';
             voiceInputBtn.title = 'Voice not supported in this browser';
-            showToast('Voice dictation is not supported on this browser or requires HTTPS.');
             setTimeout(() => {
                 voiceInputBtn.style.color = '';
                 voiceInputBtn.title = 'Voice Input';
