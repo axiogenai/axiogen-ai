@@ -698,16 +698,24 @@ export function setupNsfw(state) {
 function _handleRecognitionResult(event) {
     if (!isNsfwActive) return;
 
-    let interim = '';
-    let final_  = '';
+    let combinedText = '';
+    let isInterim = false;
 
     for (let i = 0; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) final_  += transcript + ' ';
-        else                           interim += transcript + ' ';
+        const transcript = event.results[i][0].transcript.trim();
+        if (!transcript) continue;
+
+        if (combinedText.length > 0 && transcript.toLowerCase().startsWith(combinedText.toLowerCase())) {
+            combinedText = transcript;
+        } else {
+            combinedText = combinedText ? combinedText + ' ' + transcript : transcript;
+        }
+        
+        if (i === event.results.length - 1 && !event.results[i].isFinal) {
+            isInterim = true;
+        }
     }
 
-    const combinedText = (final_ + interim).trim();
     const combinedLower = combinedText.toLowerCase();
 
     if (/\b(stop|shut up|shutup|quiet|shut down|shutdown|turn off|stop speaking|abort)\b/.test(combinedLower)) {
@@ -729,7 +737,7 @@ function _handleRecognitionResult(event) {
     }
 
     if (combinedText) {
-        setUserSubtitle(combinedText, interim.trim().length > 0);
+        setUserSubtitle(combinedText, isInterim);
         const silenceMs = combinedText.length > 60 ? SILENCE_MS_SHORT : SILENCE_MS_LONG;
         clearTimeout(silenceTimer);
         silenceTimer = setTimeout(() => {
