@@ -17,6 +17,7 @@ let _aborted = false;
 let _onCompleteGlobal = null;
 
 let _client = null;
+const _prefetchCache = new Map();
 
 function getClient() {
     if (!_client) {
@@ -52,6 +53,13 @@ export function isSpeaking() {
     return _isSpeaking;
 }
 
+export function clearPrefetchCache() {
+    for (const url of _prefetchCache.values()) {
+        try { URL.revokeObjectURL(url); } catch (_) {}
+    }
+    _prefetchCache.clear();
+}
+
 export function stopSpeaking() {
     _aborted = true;
     if (_currentAudio) {
@@ -60,9 +68,39 @@ export function stopSpeaking() {
         _currentAudio = null;
     }
     _isSpeaking = false;
-    if (_onCompleteGlobal) {
-        _onCompleteGlobal();
-        _onCompleteGlobal = null;
+    _onCompleteGlobal = null;
+    clearPrefetchCache();
+}
+
+export async function prefetchSpeech(text, useSSML = false) {
+    if (!text || !text.trim()) return;
+    const cleanText = text.trim();
+    if (_prefetchCache.has(cleanText)) return;
+
+    try {
+        const client = getClient();
+        const command = new SynthesizeSpeechCommand({
+            OutputFormat: "mp3",
+            Text: cleanText,
+            TextType: useSSML ? "ssml" : "text",
+            VoiceId: _selectedVoice.name,
+            Engine: "neural"
+        });
+
+        const response = await client.send(command);
+        let arrayBuffer;
+        if (typeof response.AudioStream.transformToByteArray === 'function') {
+            const uint8 = await response.AudioStream.transformToByteArray();
+            arrayBuffer = uint8.buffer;
+        } else {
+            arrayBuffer = await new Response(response.AudioStream).arrayBuffer();
+        }
+
+        const blob = new Blob([arrayBuffer], { type: "audio/mp3" });
+        const url = URL.createObjectURL(blob);
+        _prefetchCache.set(cleanText, url);
+    } catch (e) {
+        console.warn("[VOICE] Prefetch error for:", cleanText, e.message);
     }
 }
 
@@ -74,29 +112,37 @@ export async function speak(text, onComplete = null, useSSML = false, onBoundary
     _onCompleteGlobal = onComplete;
     _isSpeaking = true;
 
+    const cleanText = text.trim();
+
     try {
-        const client = getClient();
-        
-        const command = new SynthesizeSpeechCommand({
-            OutputFormat: "mp3",
-            Text: text,
-            TextType: useSSML ? "ssml" : "text",
-            VoiceId: _selectedVoice.name,
-            Engine: "neural"
-        });
-
-        const response = await client.send(command);
-        
-        let arrayBuffer;
-        if (typeof response.AudioStream.transformToByteArray === 'function') {
-            const uint8 = await response.AudioStream.transformToByteArray();
-            arrayBuffer = uint8.buffer;
+        let url;
+        if (_prefetchCache.has(cleanText)) {
+            url = _prefetchCache.get(cleanText);
+            _prefetchCache.delete(cleanText);
         } else {
-            arrayBuffer = await new Response(response.AudioStream).arrayBuffer();
-        }
+            const client = getClient();
+            
+            const command = new SynthesizeSpeechCommand({
+                OutputFormat: "mp3",
+                Text: cleanText,
+                TextType: useSSML ? "ssml" : "text",
+                VoiceId: _selectedVoice.name,
+                Engine: "neural"
+            });
 
-        const blob = new Blob([arrayBuffer], { type: "audio/mp3" });
-        const url = URL.createObjectURL(blob);
+            const response = await client.send(command);
+            
+            let arrayBuffer;
+            if (typeof response.AudioStream.transformToByteArray === 'function') {
+                const uint8 = await response.AudioStream.transformToByteArray();
+                arrayBuffer = uint8.buffer;
+            } else {
+                arrayBuffer = await new Response(response.AudioStream).arrayBuffer();
+            }
+
+            const blob = new Blob([arrayBuffer], { type: "audio/mp3" });
+            url = URL.createObjectURL(blob);
+        }
         
         _currentAudio = new Audio(url);
         
