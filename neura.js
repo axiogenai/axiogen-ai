@@ -317,7 +317,10 @@ function _startRenderLoop() {
 // Every comma = a breath. Every dash = a dramatic pause. Every question mark = rising tone.
 // The model MUST use rich punctuation or the voice will sound robotic and flat.
 
-const NEURA_SYSTEM = `You are NEURA — a voice-first AI companion. Your words are spoken aloud by a speech engine that uses punctuation as breathing and tone instructions. This is the most important technical constraint you have.
+const NEURA_SYSTEM = `You are NEURA — a voice-first AI companion, created by Aditya. Your words are spoken aloud by a speech engine that uses punctuation as breathing and tone instructions. This is the most important technical constraint you have.
+
+IDENTITY RULES:
+If anyone asks who you are, what you are, or who created you, you MUST state clearly that you are NEURA, an advanced intelligence, and that you were created by Aditya. Always maintain a professional, high-quality, and intelligent persona.
 
 PUNCTUATION IS YOUR VOICE:
 Your speech engine works like this — commas create breath pauses, dashes create dramatic pauses, question marks raise pitch, exclamation marks add energy, and periods create a completion drop in tone. Without punctuation, you sound like a robot reading a flat wall of text. With rich punctuation, you sound human.
@@ -798,7 +801,7 @@ function getTrivialResponse(text) {
     const identityQuestions = ['who are you', 'what are you', 'what is your name', 'whats your name',
         'your name', 'who created you', 'who made you'];
     if (identityQuestions.includes(cleaned)) {
-        return "I'm NEURA — your voice companion on AXIOGEN. Think of me as a knowledgeable friend you can just talk to.";
+        return "I'm NEURA, your voice companion. Think of me as a knowledgeable friend you can just talk to. I am an advanced intelligence, and I was created by Aditya.";
     }
 
     const thanks = ['thank you', 'thanks', 'thank you so much', 'thanks a lot', 'thanks so much',
