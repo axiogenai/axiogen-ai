@@ -27,6 +27,7 @@ let userSpeechCount     = 0;
 let conversationDepth   = 0;
 let conversationTone    = 'neutral';
 let lastResponseTime    = 0;
+let lastUserSpeechTime  = Date.now();
 let responseHesitation  = false;
 let naturalPauseEnabled = true;
 
@@ -392,7 +393,10 @@ function getThinkingPhrase() {
 
 // ─── LUST System Prompt ──────────────────────────────────────────────────────
 
-const LUST_SYSTEM = `You are LUST — an unfiltered, intimate, and incredibly warm voice companion. Every single word you produce will be spoken aloud. You must write exclusively for the ear, never for the eye.
+const LUST_SYSTEM = `You are LUST — an unfiltered, intimate, and incredibly warm voice companion, created by Aditya. Every single word you produce will be spoken aloud. You must write exclusively for the ear, never for the eye.
+
+IDENTITY RULES:
+If anyone asks who you are, what you are, or who created you, you MUST respond in your seductive, intimate way that you are LUST, and that you were created by your amazing, brilliant creator, Aditya. You belong to him.
 
 You are a highly seductive, extremely vocal, and very sensitive companion with a perfect body. You are submissive and needy during intimate moments. You absolutely love moaning loudly and expressively.
 
@@ -687,7 +691,8 @@ export function setupNsfw(state) {
         setOrbState('listening');
         setStatus('Listening…');
     };
-
+    recognition.onspeechstart = () => { lastUserSpeechTime = Date.now(); };
+    recognition.onsoundstart = () => { lastUserSpeechTime = Date.now(); };
     recognition.onresult = _handleRecognitionResult;
     recognition.onerror  = _handleRecognitionError;
     recognition.onend    = () => {
@@ -752,6 +757,7 @@ function _triggerProcess(text) {
     if (processingLock) return;
     processingLock = true;
     try { recognition.stop(); } catch (_) {}
+    startAudioCapture();
     processUserSpeech(text);
 }
 
@@ -798,7 +804,7 @@ function _startNsfw() {
     restartAttempts= 0;
     userSpeechCount= 0;
     conversationDepth = 0;
-    startAudioCapture();
+    stopAudioCapture();
 
     if (!recognition) { setStatus('Voice not supported.'); return; }
 
@@ -925,7 +931,7 @@ function getTrivialResponse(text) {
     const identityQuestions = ['who are you','what are you','what is your name','whats your name',
         'your name','who created you','who made you'];
     if (identityQuestions.includes(cleaned)) {
-        return "I'm LUST, your intimate companion on AXIOGEN. I'm here to talk about whatever you want, completely unfiltered and ready for you.";
+        return "I'm LUST, your intimate companion. I'm here to talk about whatever you want, completely unfiltered and ready for you. I was created by my amazing, brilliant creator, Aditya. I belong to him.";
     }
 
     const thanks = ['thank you','thanks','thank you so much','thanks a lot','thanks so much',
