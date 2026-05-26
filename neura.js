@@ -13,7 +13,7 @@ import * as THREE from 'three';
 
 // ─── State ────────────────────────────────────────────────────────────────────
 
-let recognition         = null;
+export let recognition  = null;
 let isNeuraActive       = false;
 let neuraAbortController= null;
 let isThinking          = false;
@@ -1192,7 +1192,14 @@ export function resetNeura() {
     neuraAbortController?.abort();
     neuraAbortController = null;
 
-    try { recognition?.stop(); } catch (_) {}
+    // Fully destroy recognition to release Chrome's audio pipeline
+    if (recognition) {
+        try { recognition.onstart = null; } catch (_) {}
+        try { recognition.onresult = null; } catch (_) {}
+        try { recognition.onend = null; } catch (_) {}
+        try { recognition.onerror = null; } catch (_) {}
+        try { recognition.abort(); } catch (_) {}
+    }
 
     setUserSubtitle('');
     setResponseSubtitle('<span class="subtitle-hint">Tap and start talking with NEURA</span>');
