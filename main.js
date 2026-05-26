@@ -256,8 +256,14 @@ function init() {
             if (isListening) {
                 try { recognition.stop(); } catch(err) {}
             } else {
-                // Abort any lingering session before starting fresh
+                // Cancel any active text-to-speech first — on mobile Chrome,
+                // SpeechSynthesis and SpeechRecognition share the audio pipeline
+                // and cannot run simultaneously.
+                try { stopSpeaking(); } catch(err) {}
+                try { window.speechSynthesis.cancel(); } catch(err) {}
+                // Abort any lingering recognition session
                 try { recognition.abort(); } catch(err) {}
+                // Give Chrome time to fully release the audio resource
                 setTimeout(() => {
                     try { 
                         recognition.start(); 
@@ -265,7 +271,7 @@ function init() {
                         console.error("Mic start error:", err);
                         showToast("Could not start microphone. Try reloading the page.");
                     }
-                }, 100);
+                }, 250);
             }
         };
 
