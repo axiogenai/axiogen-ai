@@ -601,7 +601,25 @@ function _handleRecognitionResult(event) {
 
     const combinedLower = combinedText.toLowerCase();
 
-    if (/\b(stop|shut up|shutup|quiet|shut down|shutdown|turn off|stop speaking|abort)\b/.test(combinedLower)) {
+    // Check for interrupt commands while speaking/thinking
+    const isResponding = isSpeaking() || isThinking || processingLock;
+    if (isResponding && /\b(stop|okay stop|wait|quiet|chup|shut up|shutup|chup kar|stop speaking|abort)\b/.test(combinedLower)) {
+        stopSpeaking();
+        resetSubtitleTypewriter();
+        setUserSubtitle('');
+        setResponseSubtitle('');
+        neuraAbortController?.abort();
+        isThinking     = false;
+        processingLock = false;
+        currentGenerationId++;
+        setOrbState('listening');
+        setStatus('NEURA is listening…');
+        try { recognition.stop(); } catch (_) {}
+        return;
+    }
+
+    if (/\b(shut down|shutdown|turn off)\b/.test(combinedLower) || 
+        (!isResponding && /\b(stop|shut up|shutup|quiet|stop speaking|abort)\b/.test(combinedLower))) {
         resetBtn();
         _stopNeura();
         return;
@@ -611,6 +629,8 @@ function _handleRecognitionResult(event) {
     if (isSpeaking() && wordCount >= INTERRUPT_WORDS) {
         stopSpeaking();
         resetSubtitleTypewriter();
+        setUserSubtitle('');
+        setResponseSubtitle('');
         neuraAbortController?.abort();
         isThinking     = false;
         processingLock = false;
@@ -1169,9 +1189,9 @@ function _onResponseComplete(fullText) {
     processingLock  = false;
     lastInterimText = '';
 
-    if (fullText) {
-        setSubtitleTarget(cleanTextForSpeech(fullText), '', true);
-    }
+    resetSubtitleTypewriter();
+    setUserSubtitle('');
+    setResponseSubtitle('<span class="subtitle-hint">Keep speaking...</span>');
 
     if (isNeuraActive) {
         setOrbState('listening');
