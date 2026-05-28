@@ -139,7 +139,7 @@ function init() {
                 window.axiogenSignOut();
             } else {
                 localStorage.clear();
-                window.location.href = '/login.html';
+                window.location.reload();
             }
         });
     }
@@ -356,7 +356,14 @@ Rules:
     const uploadBtn = document.getElementById('upload-btn');
     const fileInput = document.getElementById('file-input');
 
-    uploadBtn?.addEventListener('click', () => fileInput.click());
+    uploadBtn?.addEventListener('click', () => {
+        if (!window.AXIOGEN_SESSION) {
+            const authOverlay = document.getElementById('inline-auth-overlay');
+            if (authOverlay) authOverlay.classList.add('active');
+            return;
+        }
+        fileInput.click();
+    });
 
     fileInput?.addEventListener('change', async (e) => {
         const file = e.target.files[0];
@@ -588,6 +595,13 @@ Rules:
 
     document.querySelectorAll('.workspace-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
+            const workspace = e.currentTarget.getAttribute('data-workspace');
+            if (!window.AXIOGEN_SESSION && workspace !== 'neura') {
+                const authOverlay = document.getElementById('inline-auth-overlay');
+                if (authOverlay) authOverlay.classList.add('active');
+                return;
+            }
+
             resetNeura();
             resetNsfw();
             sidebar?.classList.remove('hover-expanded');
@@ -595,7 +609,6 @@ Rules:
             // Collapse sidebar unconditionally when opening any workspace
             sidebar?.classList.add('collapsed');
 
-            const workspace = e.currentTarget.getAttribute('data-workspace');
             console.log('Switching to workspace:', workspace);
             if (workspace === 'testing') {
                 toggleTestingWorkspace(e.currentTarget);
