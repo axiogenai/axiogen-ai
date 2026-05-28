@@ -19,6 +19,172 @@
             background-color: #1a1a1f !important;
             color: #ffffff !important;
         }
+
+        /* ========== INLINE AUTH & GUEST MODE ========== */
+        .guest-timer-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.5rem 1.1rem;
+            background: rgba(0, 255, 255, 0.04);
+            border: 1px solid rgba(0, 255, 255, 0.15);
+            border-radius: 12px;
+            color: #00ffff;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: 'Space Grotesk', sans-serif;
+            letter-spacing: 0.5px;
+            margin-left: 1rem;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.05);
+            animation: timerPulse 2s infinite ease-in-out;
+        }
+
+        .guest-timer-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #00ffff;
+            border-radius: 50%;
+            box-shadow: 0 0 8px #00ffff;
+        }
+
+        @keyframes timerPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(0.98); }
+        }
+
+        .inline-auth-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 3, 5, 0.65);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 100000; /* Must sit above everything else */
+            animation: fadeIn 0.4s ease;
+        }
+
+        .inline-auth-overlay.active {
+            display: flex !important;
+        }
+
+        .inline-auth-card {
+            background: rgba(15, 15, 20, 0.65);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            width: 90%;
+            max-width: 420px;
+            border-radius: 28px;
+            padding: 2.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.01);
+            animation: modalSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .inline-auth-tabs {
+            display: flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 4px;
+            border-radius: 14px;
+            margin-bottom: 2rem;
+        }
+
+        .inline-auth-tab-btn {
+            flex: 1;
+            padding: 0.6rem;
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .inline-auth-tab-btn.active {
+            background: rgba(255, 255, 255, 0.06);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .inline-auth-form {
+            display: none;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        .inline-auth-form.active {
+            display: flex !important;
+        }
+
+        .inline-auth-form-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.5px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .inline-auth-form-subtitle {
+            font-size: 0.825rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 1.5rem;
+        }
+
+        .inline-auth-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            font-size: 0.8rem;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            margin-bottom: 1.25rem;
+            display: none;
+            font-weight: 500;
+        }
+
+        .inline-auth-btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: #E6ECF2;
+            color: #000000;
+            border: none;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px rgba(230, 236, 242, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.5rem;
+        }
+
+        .inline-auth-btn-submit:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .inline-auth-btn-submit:active {
+            transform: translateY(0);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalSlide {
+            from { opacity: 0; transform: scale(0.95) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
     </style>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
