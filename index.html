@@ -961,7 +961,8 @@
                 const timerText = document.getElementById('guest-timer-text');
                 const authOverlay = document.getElementById('inline-auth-overlay');
 
-                if (timerBadge) timerBadge.style.display = 'inline-flex';
+                // Keep timer badge hidden visually
+                if (timerBadge) timerBadge.style.display = 'none';
 
                 function updateCountdown() {
                     const elapsed = Date.now() - startTime;
