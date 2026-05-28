@@ -16,7 +16,7 @@
 
     /* Layout */
     --sidebar-width: 220px;
-    --max-chat-width: 600px;
+    --max-chat-width: 800px;
 }
 
 /* --- In Progress Experience (Priority) --- */
@@ -588,7 +588,7 @@ body::before {
 }
 
 .selected-model::after {
-    content: '\f078';
+    content: '078';
     font-family: 'Font Awesome 6 Free';
     font-weight: 900;
     font-size: 0.8rem;
@@ -2628,7 +2628,7 @@ textarea {
    ══════════════════════════════════════════════════════ */
 @media (min-width: 1441px) {
     .message-wrapper, .input-container {
-        max-width: 900px !important;
+        max-width: var(--max-chat-width) !important;
         margin-left: auto !important;
         margin-right: auto !important;
     }
@@ -4548,7 +4548,7 @@ body, .app-container {
 }
 
 .message-wrapper {
-    max-width: 100% !important;
+    max-width: min(var(--max-chat-width), 100%) !important;
     box-sizing: border-box !important;
 }
 
