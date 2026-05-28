@@ -752,6 +752,7 @@ function _triggerProcess(text) {
     if (processingLock) return;
     processingLock = true;
     try { recognition.stop(); } catch (_) {}
+    startAudioCapture();
     processUserSpeech(text);
 }
 
@@ -798,7 +799,7 @@ function _startNsfw() {
     restartAttempts= 0;
     userSpeechCount= 0;
     conversationDepth = 0;
-    startAudioCapture();
+    stopAudioCapture();
 
     if (!recognition) { setStatus('Voice not supported.'); return; }
 
@@ -856,6 +857,7 @@ function _scheduleRestart() {
     setTimeout(() => {
         if (!isNsfwActive) return;
         try {
+            stopAudioCapture();
             recognition.lang = detectedLang;
             recognition.start();
         } catch (e) {
