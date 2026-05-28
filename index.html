@@ -209,6 +209,11 @@
                                 405B</div>
                         </div>
                     </div>
+                    
+                    <!-- Guest Mode Countdown Timer Badge -->
+                    <div class="guest-timer-badge" id="guest-timer-badge" style="display: none;">
+                        <span id="guest-timer-text">Guest: 5:00</span>
+                    </div>
                 </div>
                 <div class="header-right" id="tutor-header-controls"
                     style="display: none; align-items: center; gap: 1rem;">
@@ -625,55 +630,228 @@
             </button>
         </div>
 
+        <!-- Inline Authentication Overlay -->
+        <div id="inline-auth-overlay" class="inline-auth-overlay">
+            <div class="inline-auth-card">
+                <div class="inline-auth-tabs">
+                    <button class="inline-auth-tab-btn active" onclick="switchAuthTab('login')">Log In</button>
+                    <button class="inline-auth-tab-btn" onclick="switchAuthTab('signup')">Sign Up</button>
+                </div>
+
+                <!-- Login Form -->
+                <form id="inline-login-form" class="inline-auth-form active" onsubmit="handleInlineLogin(event)">
+                    <div class="inline-auth-form-title">Access Axiogen</div>
+                    <div class="inline-auth-form-subtitle">Welcome back. Enter details to restore session.</div>
+                    <div class="inline-auth-error" id="login-error-msg"></div>
+                    
+                    <div class="settings-group" style="margin-bottom: 1.25rem;">
+                        <label style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">EMAIL ADDRESS</label>
+                        <input type="email" id="login-email" required placeholder="name@domain.com" style="width: 100%; padding: 0.85rem 1.1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #fff; font-family: inherit; font-size: 0.9rem; transition: border-color 0.2s;">
+                    </div>
+                    
+                    <div class="settings-group" style="margin-bottom: 1.5rem;">
+                        <label style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">PASSWORD</label>
+                        <input type="password" id="login-password" required placeholder="••••••••" style="width: 100%; padding: 0.85rem 1.1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #fff; font-family: inherit; font-size: 0.9rem; transition: border-color 0.2s;">
+                    </div>
+
+                    <button type="submit" class="inline-auth-btn-submit" id="login-submit-btn">PROCEED TO CONSOLE</button>
+                </form>
+
+                <!-- Sign Up Form -->
+                <form id="inline-signup-form" class="inline-auth-form" onsubmit="handleInlineSignup(event)">
+                    <div class="inline-auth-form-title">Create Account</div>
+                    <div class="inline-auth-form-subtitle">Unlock unrestricted, permanent sandbox workspace.</div>
+                    <div class="inline-auth-error" id="signup-error-msg"></div>
+
+                    <div class="settings-group" style="margin-bottom: 1.25rem;">
+                        <label style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">FULL NAME</label>
+                        <input type="text" id="signup-name" required placeholder="Jane Doe" style="width: 100%; padding: 0.85rem 1.1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #fff; font-family: inherit; font-size: 0.9rem; transition: border-color 0.2s;">
+                    </div>
+                    
+                    <div class="settings-group" style="margin-bottom: 1.25rem;">
+                        <label style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">EMAIL ADDRESS</label>
+                        <input type="email" id="signup-email" required placeholder="name@domain.com" style="width: 100%; padding: 0.85rem 1.1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #fff; font-family: inherit; font-size: 0.9rem; transition: border-color 0.2s;">
+                    </div>
+                    
+                    <div class="settings-group" style="margin-bottom: 1.5rem;">
+                        <label style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">CHOOSE PASSWORD</label>
+                        <input type="password" id="signup-password" required placeholder="Minimum 6 characters" minlength="6" style="width: 100%; padding: 0.85rem 1.1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #fff; font-family: inherit; font-size: 0.9rem; transition: border-color 0.2s;">
+                    </div>
+
+                    <button type="submit" class="inline-auth-btn-submit" id="signup-submit-btn">CREATE PROFILE</button>
+                </form>
+            </div>
+        </div>
+
         <script>
-          // ══════ AXIOGEN AUTH GUARD ══════
+          // ══════ AXIOGEN AUTH & GUEST MODE GUARD ══════
           const SUPABASE_URL = 'https://mrhdkwsigosardrjwpym.supabase.co';
           const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1yaGRrd3NpZ29zYXJkcmp3cHltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5MDE1MTAsImV4cCI6MjA5NDQ3NzUxMH0.19YtUGg0RMHkgV_DmnGqGzg_W99i9k8a-bBqXVxbKzs';
           const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+          window.AXIOGEN_SUPABASE = _sb;
+
+          // Switch inline auth tabs
+          function switchAuthTab(type) {
+              const tabBtns = document.querySelectorAll('.inline-auth-tab-btn');
+              const loginForm = document.getElementById('inline-login-form');
+              const signupForm = document.getElementById('inline-signup-form');
+              
+              tabBtns.forEach(btn => btn.classList.remove('active'));
+              if (type === 'login') {
+                  tabBtns[0].classList.add('active');
+                  loginForm.classList.add('active');
+                  signupForm.classList.remove('active');
+              } else {
+                  tabBtns[1].classList.add('active');
+                  loginForm.classList.remove('active');
+                  signupForm.classList.add('active');
+              }
+          }
+          window.switchAuthTab = switchAuthTab;
+
+          // Handle login submission inline
+          async function handleInlineLogin(event) {
+              event.preventDefault();
+              const email = document.getElementById('login-email').value;
+              const password = document.getElementById('login-password').value;
+              const errorMsg = document.getElementById('login-error-msg');
+              const submitBtn = document.getElementById('login-submit-btn');
+
+              errorMsg.style.display = 'none';
+              submitBtn.disabled = true;
+              submitBtn.textContent = 'Authenticating...';
+
+              try {
+                  const { data, error } = await _sb.auth.signInWithPassword({ email, password });
+                  if (error) throw error;
+
+                  // Clear guest timing
+                  localStorage.removeItem('AXIOGEN_guest_start_time');
+                  location.reload();
+              } catch (err) {
+                  errorMsg.textContent = err.message || 'Login failed. Please verify credentials.';
+                  errorMsg.style.display = 'block';
+                  submitBtn.disabled = false;
+                  submitBtn.textContent = 'PROCEED TO CONSOLE';
+              }
+          }
+          window.handleInlineLogin = handleInlineLogin;
+
+          // Handle signup submission inline
+          async function handleInlineSignup(event) {
+              event.preventDefault();
+              const name = document.getElementById('signup-name').value;
+              const email = document.getElementById('signup-email').value;
+              const password = document.getElementById('signup-password').value;
+              const errorMsg = document.getElementById('signup-error-msg');
+              const submitBtn = document.getElementById('signup-submit-btn');
+
+              errorMsg.style.display = 'none';
+              submitBtn.disabled = true;
+              submitBtn.textContent = 'Registering...';
+
+              try {
+                  const { data, error } = await _sb.auth.signUp({
+                      email,
+                      password,
+                      options: { data: { full_name: name } }
+                  });
+                  if (error) throw error;
+
+                  // Clear guest timing
+                  localStorage.removeItem('AXIOGEN_guest_start_time');
+                  location.reload();
+              } catch (err) {
+                  errorMsg.textContent = err.message || 'Signup failed.';
+                  errorMsg.style.display = 'block';
+                  submitBtn.disabled = false;
+                  submitBtn.textContent = 'CREATE PROFILE';
+              }
+          }
+          window.handleInlineSignup = handleInlineSignup;
+
           (async () => {
             const { data: { session } } = await _sb.auth.getSession();
-            if (!session) {
-              window.location.href = '/login.html';
-              return;
-            }
-            // Expose user info globally for your app to use
-            window.AXIOGEN_USER = session.user;
-            window.AXIOGEN_SESSION = session;
-            window.AXIOGEN_SUPABASE = _sb;
-
-            // Dynamically set avatar initials
-            const email = session.user.email || 'User';
-            const name = session.user.user_metadata?.full_name || email;
-            const initials = name.substring(0, 2).toUpperCase();
             
-            const dockProfile = document.querySelector('.dock-profile');
-            const dockAvatar = document.querySelector('.dock-avatar');
-            if (dockProfile) dockProfile.title = `${name} (Profile)`;
-            if (dockAvatar) dockAvatar.textContent = initials;
+            if (session) {
+                // EXPOSE USER & RESTORE SESSION
+                window.AXIOGEN_USER = session.user;
+                window.AXIOGEN_SESSION = session;
 
-            // Admin only workspace check (NSFW)
-            const nsfwAuthorizedEmails = ['aditaypatil07@gmail.com', 'axiogen01@gmail.com'];
-            const isNsfwAuthorized = session.user && nsfwAuthorizedEmails.includes(session.user.email);
-            
-            if (isNsfwAuthorized) {
-              const nsfwBtn = document.querySelector('.workspace-btn[data-workspace="nsfw"]');
-              if (nsfwBtn) {
-                nsfwBtn.style.setProperty('display', 'flex', 'important');
-              }
+                // Dynamically set avatar initials
+                const email = session.user.email || 'User';
+                const name = session.user.user_metadata?.full_name || email;
+                const initials = name.substring(0, 2).toUpperCase();
+                
+                const dockProfile = document.querySelector('.dock-profile');
+                const dockAvatar = document.querySelector('.dock-avatar');
+                if (dockProfile) dockProfile.title = `${name} (Profile)`;
+                if (dockAvatar) dockAvatar.textContent = initials;
+
+                // NSFW authorization checks
+                const nsfwAuthorizedEmails = ['aditaypatil07@gmail.com', 'axiogen01@gmail.com'];
+                const isNsfwAuthorized = nsfwAuthorizedEmails.includes(session.user.email);
+                
+                const nsfwBtn = document.querySelector('.workspace-btn[data-workspace="nsfw"]');
+                if (isNsfwAuthorized) {
+                    if (nsfwBtn) nsfwBtn.style.setProperty('display', 'flex', 'important');
+                } else {
+                    if (nsfwBtn) nsfwBtn.remove();
+                }
             } else {
-              // If not authorized, completely remove it from the sidebar
-              const nsfwBtn = document.querySelector('.workspace-btn[data-workspace="nsfw"]');
-              if (nsfwBtn) {
-                nsfwBtn.remove();
-              }
+                // START GUEST MODE OR LOCK SCREEN IF TIMER EXPIRED
+                const GUEST_DURATION_MS = 5 * 60 * 1000; // 5 Minutes
+                
+                let guestStart = localStorage.getItem('AXIOGEN_guest_start_time');
+                if (!guestStart) {
+                    guestStart = Date.now().toString();
+                    localStorage.setItem('AXIOGEN_guest_start_time', guestStart);
+                }
+                const startTime = parseInt(guestStart, 10);
+
+                // Expose a temporary mock guest user
+                window.AXIOGEN_USER = {
+                    email: 'guest@axiogen.in',
+                    user_metadata: { full_name: 'Guest User' }
+                };
+
+                // Clear nsfw button completely from guest sidebar
+                const nsfwBtn = document.querySelector('.workspace-btn[data-workspace="nsfw"]');
+                if (nsfwBtn) nsfwBtn.remove();
+
+                const timerBadge = document.getElementById('guest-timer-badge');
+                const timerText = document.getElementById('guest-timer-text');
+                const authOverlay = document.getElementById('inline-auth-overlay');
+
+                if (timerBadge) timerBadge.style.display = 'inline-flex';
+
+                function updateCountdown() {
+                    const elapsed = Date.now() - startTime;
+                    const remaining = Math.max(0, GUEST_DURATION_MS - elapsed);
+
+                    if (remaining <= 0) {
+                        clearInterval(timerInterval);
+                        if (timerText) timerText.textContent = 'Guest expired';
+                        if (authOverlay) authOverlay.classList.add('active');
+                    } else {
+                        const totalSecs = Math.ceil(remaining / 1000);
+                        const mins = Math.floor(totalSecs / 60);
+                        const secs = totalSecs % 60;
+                        if (timerText) timerText.textContent = `Guest: ${mins}:${secs.toString().padStart(2, '0')}`;
+                    }
+                }
+
+                updateCountdown();
+                const timerInterval = setInterval(updateCountdown, 1000);
             }
           })();
 
-          // Optional: sign out function you can call from your settings
+          // Sign out handler
           window.axiogenSignOut = async () => {
             await _sb.auth.signOut();
-            window.location.href = '/login.html';
+            localStorage.removeItem('AXIOGEN_guest_start_time');
+            window.location.reload();
           };
         </script>
 
