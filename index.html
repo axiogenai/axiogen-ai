@@ -74,8 +74,17 @@
         .login-input-group input:focus {
             border-color: #00ffff !important;
             box-shadow: 0 0 15px rgba(0, 255, 255, 0.45) !important;
-            text-shadow: 0 0 8px rgba(0, 255, 255, 0.6) !important;
-            color: #00ffff !important;
+            color: #ffffff !important;
+        }
+
+        /* Prevent ugly white Chrome/Safari autofill background */
+        .login-input-group input:-webkit-autofill,
+        .login-input-group input:-webkit-autofill:hover, 
+        .login-input-group input:-webkit-autofill:focus, 
+        .login-input-group input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.05) inset !important;
+            -webkit-text-fill-color: #ffffff !important;
+            transition: background-color 5000s ease-in-out 0s;
         }
 
         .inline-auth-tabs {
