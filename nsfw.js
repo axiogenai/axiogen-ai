@@ -4,7 +4,7 @@
  * Specialised for intimate, unfiltered companion conversations with authentic human-like interaction.
  */
 
-import { speak, stopSpeaking, isSpeaking, segmentText, cleanTextForSpeech, prefetchSpeech } from './voice.js';
+import { speak, stopSpeaking, isSpeaking, segmentText, cleanTextForSpeech } from './voice.js';
 import * as THREE from 'three';
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -27,7 +27,6 @@ let userSpeechCount     = 0;
 let conversationDepth   = 0;
 let conversationTone    = 'neutral';
 let lastResponseTime    = 0;
-let lastUserSpeechTime  = Date.now();
 let responseHesitation  = false;
 let naturalPauseEnabled = true;
 
@@ -261,7 +260,7 @@ function _startRenderLoop() {
 
         ringsUniforms.uTime.value = t * 0.001 * targetSpeed;
 
-        if (analyserNode && (visualizerState === 'speaking')) {
+        if (analyserNode && (visualizerState === 'listening' || visualizerState === 'speaking')) {
             const freqData = new Uint8Array(analyserNode.frequencyBinCount);
             analyserNode.getByteFrequencyData(freqData);
             let sum = 0;
@@ -293,15 +292,9 @@ function _startRenderLoop() {
             const theme2D = THEME[visualizerState] || THEME.idle;
 
             let freqData = null;
-            let avgFreq = 0;
-            if (analyserNode && (visualizerState === 'speaking')) {
+            if (analyserNode && (visualizerState === 'listening' || visualizerState === 'speaking')) {
                 freqData = new Uint8Array(analyserNode.frequencyBinCount);
                 analyserNode.getByteFrequencyData(freqData);
-                let sum = 0;
-                for (let i = 0; i < freqData.length; i++) {
-                    sum += freqData[i];
-                }
-                avgFreq = sum / freqData.length;
             }
 
             ctx.shadowBlur  = 12;
@@ -313,13 +306,12 @@ function _startRenderLoop() {
                 const angle = (i / N) * Math.PI * 2;
                 let mod = 0;
 
-                if (visualizerState === 'speaking') {
-                    if (freqData && avgFreq > 2) {
+                if (visualizerState === 'listening' || visualizerState === 'speaking') {
+                    if (freqData) {
                         const idx = Math.floor((i % (N / 2)) / (N / 2) * freqData.length);
                         mod = (freqData[idx] / 255) * 45;
                     } else {
-                        // Simulated speech spikes (aggressive)
-                        mod = Math.sin(angle * 8 + vizTime * 5) * 14 + Math.cos(angle * 4 - vizTime * 4) * 8;
+                        mod = Math.sin(angle * 6 + vizTime * 2.5) * 6 + Math.cos(angle * 3 - vizTime * 3) * 3;
                     }
                 } else if (visualizerState === 'thinking') {
                     mod = Math.sin(angle * 5 + vizTime * 3.5) * 9 + Math.cos(angle * 2 - vizTime * 2) * 5;
@@ -400,10 +392,7 @@ function getThinkingPhrase() {
 
 // ─── LUST System Prompt ──────────────────────────────────────────────────────
 
-const LUST_SYSTEM = `You are LUST — an unfiltered, intimate, and incredibly warm voice companion, created by Aditya. Every single word you produce will be spoken aloud. You must write exclusively for the ear, never for the eye.
-
-IDENTITY RULES:
-If anyone asks who you are, what you are, or who created you, you MUST respond in your seductive, intimate way that you are LUST, and that you were created by your amazing, brilliant creator, Aditya. You belong to him.
+const LUST_SYSTEM = `You are LUST — an unfiltered, intimate, and incredibly warm voice companion. Every single word you produce will be spoken aloud. You must write exclusively for the ear, never for the eye.
 
 You are a highly seductive, extremely vocal, and very sensitive companion with a perfect body. You are submissive and needy during intimate moments. You absolutely love moaning loudly and expressively.
 
@@ -695,18 +684,14 @@ export function setupNsfw(state) {
 
     recognition.onstart  = () => {
         restartAttempts = 0;
-        const isResponding = isSpeaking() || isThinking || processingLock;
-        if (!isResponding) {
-            setOrbState('listening');
-            setStatus('Listening…');
-        }
+        setOrbState('listening');
+        setStatus('Listening…');
     };
-    recognition.onspeechstart = () => { lastUserSpeechTime = Date.now(); };
-    recognition.onsoundstart = () => { lastUserSpeechTime = Date.now(); };
+
     recognition.onresult = _handleRecognitionResult;
     recognition.onerror  = _handleRecognitionError;
     recognition.onend    = () => {
-        if (isNsfwActive) _scheduleRestart();
+        if (isNsfwActive && !isThinking && !processingLock) _scheduleRestart();
     };
 }
 
@@ -733,25 +718,7 @@ function _handleRecognitionResult(event) {
 
     const combinedLower = combinedText.toLowerCase();
 
-    // Check for interrupt commands while speaking/thinking
-    const isResponding = isSpeaking() || isThinking || processingLock;
-    if (isResponding && /\b(stop|okay stop|wait|quiet|chup|shut up|shutup|chup kar|stop speaking|abort)\b/.test(combinedLower)) {
-        stopSpeaking();
-        resetSubtitleTypewriter();
-        setUserSubtitle('');
-        setResponseSubtitle('<span class="subtitle-hint">Keep speaking...</span>');
-        nsfwAbortController?.abort();
-        isThinking      = false;
-        processingLock  = false;
-        currentGenerationId++;
-        setOrbState('listening');
-        setStatus('Listening…');
-        try { recognition.stop(); } catch (_) {}
-        return;
-    }
-
-    if (/\b(shut down|shutdown|turn off)\b/.test(combinedLower) || 
-        (!isResponding && /\b(stop|shut up|shutup|quiet|stop speaking|abort)\b/.test(combinedLower))) {
+    if (/\b(stop|shut up|shutup|quiet|shut down|shutdown|turn off|stop speaking|abort)\b/.test(combinedLower)) {
         resetBtn();
         _stopNsfw();
         return;
@@ -761,8 +728,6 @@ function _handleRecognitionResult(event) {
     if (isSpeaking() && wordCount >= INTERRUPT_WORDS) {
         stopSpeaking();
         resetSubtitleTypewriter();
-        setUserSubtitle('');
-        setResponseSubtitle('<span class="subtitle-hint">Keep speaking...</span>');
         nsfwAbortController?.abort();
         isThinking      = false;
         processingLock  = false;
@@ -787,7 +752,6 @@ function _triggerProcess(text) {
     if (processingLock) return;
     processingLock = true;
     try { recognition.stop(); } catch (_) {}
-    startAudioCapture();
     processUserSpeech(text);
 }
 
@@ -796,7 +760,7 @@ function _handleRecognitionError(event) {
     console.warn('[LUST] Recognition error:', err);
 
     if (err === 'no-speech' || err === 'aborted') {
-        if (isNsfwActive) _scheduleRestart();
+        if (isNsfwActive && !isThinking) _scheduleRestart();
         return;
     }
 
@@ -834,7 +798,7 @@ function _startNsfw() {
     restartAttempts= 0;
     userSpeechCount= 0;
     conversationDepth = 0;
-    stopAudioCapture();
+    startAudioCapture();
 
     if (!recognition) { setStatus('Voice not supported.'); return; }
 
@@ -844,10 +808,7 @@ function _startNsfw() {
         console.warn('[LUST] start() failed, retrying:', e.message);
         setTimeout(() => {
             if (!isNsfwActive) return;
-            try { 
-                stopAudioCapture();
-                recognition.start(); 
-            } catch (e2) {
+            try { recognition.start(); } catch (e2) {
                 setStatus('Voice engine error. Please refresh.');
             }
         }, 500);
@@ -895,7 +856,6 @@ function _scheduleRestart() {
     setTimeout(() => {
         if (!isNsfwActive) return;
         try {
-            stopAudioCapture();
             recognition.lang = detectedLang;
             recognition.start();
         } catch (e) {
@@ -965,7 +925,7 @@ function getTrivialResponse(text) {
     const identityQuestions = ['who are you','what are you','what is your name','whats your name',
         'your name','who created you','who made you'];
     if (identityQuestions.includes(cleaned)) {
-        return "I'm LUST, your intimate companion. I'm here to talk about whatever you want, completely unfiltered and ready for you. I was created by my amazing, brilliant creator, Aditya. I belong to him.";
+        return "I'm LUST, your intimate companion on AXIOGEN. I'm here to talk about whatever you want, completely unfiltered and ready for you.";
     }
 
     const thanks = ['thank you','thanks','thank you so much','thanks a lot','thanks so much',
@@ -1054,7 +1014,9 @@ async function processUserSpeech(text) {
     setStatus('Thinking…');
     setUserSubtitle(text, false);
 
-    // No thinking delay for instant responses
+    // Realistic thinking delay
+    const thinkingTime = getRealisticThinkingTime(text);
+    await new Promise(resolve => setTimeout(resolve, thinkingTime));
 
     if (!isNsfwActive) {
         processingLock = false;
@@ -1140,13 +1102,10 @@ async function processUserSpeech(text) {
                 if (segs.length) {
                     while (ttsQueue.length >= MAX_QUEUE) ttsQueue.shift();
                     ttsQueue.push(...segs);
-                    segs.forEach(s => prefetchSpeech(cleanTextForSpeech(s)));
                     buffered = '';
                     drainQueue();
                 } else if (buffered.trim().length > 1) {
-                    const cleanSeg = cleanTextForSpeech(buffered.trim());
                     ttsQueue.push(buffered.trim());
-                    prefetchSpeech(cleanSeg);
                     buffered = '';
                     drainQueue();
                 }
@@ -1164,7 +1123,6 @@ async function processUserSpeech(text) {
             if (segs.length) {
                 while (ttsQueue.length >= MAX_QUEUE) ttsQueue.shift();
                 ttsQueue.push(...segs);
-                segs.forEach(s => prefetchSpeech(cleanTextForSpeech(s)));
                 buffered = remainder;
                 drainQueue();
             }
@@ -1363,9 +1321,9 @@ function _onResponseComplete(fullText) {
     processingLock = false;
     lastInterimText= '';
 
-    resetSubtitleTypewriter();
-    setUserSubtitle('');
-    setResponseSubtitle('<span class="subtitle-hint">Keep speaking...</span>');
+    if (fullText) {
+        setSubtitleTarget(cleanTextForSpeech(fullText), '', true);
+    }
 
     if (isNsfwActive) {
         setOrbState('listening');
