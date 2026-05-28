@@ -16,7 +16,7 @@
 
     /* Layout */
     --sidebar-width: 220px;
-    --max-chat-width: 600px;
+    --max-chat-width: 800px;
 }
 
 /* --- In Progress Experience (Priority) --- */
@@ -348,7 +348,7 @@ body::before {
 .axiogen-nav {
     flex: 1;
     padding: 0 0.5rem;
-    overflow-y: auto;
+    overflow: hidden; /* Avoid scrolling the entire sidebar navigation */
     display: flex;
     flex-direction: column;
     gap: 1px;
@@ -473,6 +473,15 @@ body::before {
     background: rgba(239, 68, 68, 0.1);
 }
 
+.history-list {
+    flex: 1;
+    min-height: 0; /* Enable internal scrolling by allowing flex-item to shrink */
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
 .history-item {
     padding: 0.5rem 0.75rem;
     border-radius: 0.5rem;
@@ -492,7 +501,7 @@ body::before {
 
 /* Sidebar Footer */
 .axiogen-sidebar-footer {
-    padding: 1rem;
+    padding: 0.4rem 0.5rem;
     border-top: 1px solid #2d2d2d;
     display: flex;
     flex-direction: column;
@@ -514,21 +523,21 @@ body::before {
     color: var(--text-main);
 }
 
-/* Scrollbar for sidebar */
-.axiogen-nav::-webkit-scrollbar {
+/* Scrollbar for chat history list */
+.history-list::-webkit-scrollbar {
     width: 4px;
 }
 
-.axiogen-nav::-webkit-scrollbar-track {
+.history-list::-webkit-scrollbar-track {
     background: transparent;
 }
 
-.axiogen-nav::-webkit-scrollbar-thumb {
+.history-list::-webkit-scrollbar-thumb {
     background: #333;
     border-radius: 10px;
 }
 
-.axiogen-nav::-webkit-scrollbar-thumb:hover {
+.history-list::-webkit-scrollbar-thumb:hover {
     background: #444;
 }
 
@@ -588,7 +597,7 @@ body::before {
 }
 
 .selected-model::after {
-    content: '\f078';
+    content: '078';
     font-family: 'Font Awesome 6 Free';
     font-weight: 900;
     font-size: 0.8rem;
@@ -2628,7 +2637,7 @@ textarea {
    ══════════════════════════════════════════════════════ */
 @media (min-width: 1441px) {
     .message-wrapper, .input-container {
-        max-width: 900px !important;
+        max-width: var(--max-chat-width) !important;
         margin-left: auto !important;
         margin-right: auto !important;
     }
@@ -4548,7 +4557,7 @@ body, .app-container {
 }
 
 .message-wrapper {
-    max-width: 100% !important;
+    max-width: min(var(--max-chat-width), 100%) !important;
     box-sizing: border-box !important;
 }
 
