@@ -153,7 +153,9 @@ function init() {
 
     if (selectedModelText && state.selectedModel) {
         const activeOption = document.querySelector(`.option[data-value="${state.selectedModel}"]`);
-        if (activeOption) selectedModelText.textContent = activeOption.textContent;
+        if (activeOption) {
+            selectedModelText.textContent = activeOption.getAttribute('data-name') || activeOption.textContent.trim();
+        }
     }
 
     if (dropdown) {
@@ -166,7 +168,9 @@ function init() {
     document.querySelectorAll('.option').forEach(option => {
         option.onclick = (e) => {
             state.selectedModel = option.getAttribute('data-value');
-            if (selectedModelText) selectedModelText.textContent = option.textContent;
+            if (selectedModelText) {
+                selectedModelText.textContent = option.getAttribute('data-name') || option.textContent.trim();
+            }
             dropdownOptions.classList.remove('active');
             e.stopPropagation();
         };
@@ -293,7 +297,6 @@ function init() {
 
             // Loading state
             enhanceBtn.classList.add('enhancing');
-            enhanceBtn.querySelector('i').className = 'fas fa-circle-notch fa-spin';
 
             try {
                 const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -305,19 +308,19 @@ function init() {
                         'X-Title': 'AXIOGEN Prompt Enhancer'
                     },
                     body: JSON.stringify({
-                        model: 'google/gemini-2.0-flash-001',
-                        max_tokens: 512,
+                        model: 'google/gemini-2.5-flash',
+                        max_tokens: 180,
                         messages: [
                             {
                                 role: 'system',
                                 content: `You are an elite AI prompt engineer. Your job is to rewrite a user's rough prompt into a precise, detailed, and well-structured version that will get a much better response from an AI assistant.
-
+ 
 Rules:
 - Preserve the user's original intent completely — never change what they are asking for.
 - Make the prompt more specific, clear, and actionable.
 - Add helpful context, constraints, or desired output format if missing.
 - Keep it concise — max 3–4 sentences.
-- Output ONLY the enhanced prompt text. No explanations, no "here is your enhanced prompt", no quotation marks, no preamble.`
+- Output ONLY the enhanced prompt text. No explanations, no preamble.`
                             },
                             {
                                 role: 'user',
@@ -726,7 +729,7 @@ function switchToWorkspace(workspace, btn) {
             document.getElementById('nsfw-container').style.display = 'block';
             chatDisplay.style.display = 'none';
             if (chatInputArea) chatInputArea.style.display = 'none';
-            resetNsfw(); // Clear past data every time LUST is opened
+            resetNsfw(); // Clear past data every time Lumina is opened
         } else if (state.currentWorkspace === 'deepresearch') {
             if (tutorHeaderControls) tutorHeaderControls.style.display = 'none';
             startNewChat(false);
