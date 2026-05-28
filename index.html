@@ -70,17 +70,12 @@
             display: flex !important;
         }
 
-        .inline-auth-card {
-            background: rgba(15, 15, 20, 0.65);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            width: 90%;
-            max-width: 420px;
-            border-radius: 28px;
-            padding: 2.5rem;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 0 20px rgba(255, 255, 255, 0.01);
-            animation: modalSlide 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        /* High-end glowing textbox focus overrides */
+        .login-input-group input:focus {
+            border-color: #00ffff !important;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.45) !important;
+            text-shadow: 0 0 8px rgba(0, 255, 255, 0.6) !important;
+            color: #00ffff !important;
         }
 
         .inline-auth-tabs {
@@ -130,12 +125,14 @@
             margin-bottom: 0.5rem;
             letter-spacing: -0.5px;
             font-family: 'Space Grotesk', sans-serif;
+            text-align: center;
         }
 
         .inline-auth-form-subtitle {
             font-size: 0.825rem;
             color: rgba(255, 255, 255, 0.6);
             margin-bottom: 1.5rem;
+            text-align: center;
         }
 
         .inline-auth-error {
@@ -148,32 +145,6 @@
             margin-bottom: 1.25rem;
             display: none;
             font-weight: 500;
-        }
-
-        .inline-auth-btn-submit {
-            width: 100%;
-            padding: 1rem;
-            background: #E6ECF2;
-            color: #000000;
-            border: none;
-            border-radius: 14px;
-            font-weight: 800;
-            font-size: 0.95rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 10px 25px rgba(230, 236, 242, 0.4);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 0.5rem;
-        }
-
-        .inline-auth-btn-submit:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.1);
-        }
-
-        .inline-auth-btn-submit:active {
-            transform: translateY(0);
         }
 
         @keyframes fadeIn {
@@ -798,7 +769,7 @@
 
         <!-- Inline Authentication Overlay -->
         <div id="inline-auth-overlay" class="inline-auth-overlay">
-            <div class="inline-auth-card">
+            <div class="login-card" style="position: relative;">
                 <div class="inline-auth-tabs">
                     <button class="inline-auth-tab-btn active" onclick="switchAuthTab('login')">Log In</button>
                     <button class="inline-auth-tab-btn" onclick="switchAuthTab('signup')">Sign Up</button>
@@ -810,17 +781,17 @@
                     <div class="inline-auth-form-subtitle">Welcome back. Enter details to restore session.</div>
                     <div class="inline-auth-error" id="login-error-msg"></div>
                     
-                    <div class="settings-group" style="margin-bottom: 1.25rem;">
-                        <label style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">EMAIL ADDRESS</label>
-                        <input type="email" id="login-email" required placeholder="name@domain.com" style="width: 100%; padding: 0.85rem 1.1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #fff; font-family: inherit; font-size: 0.9rem; transition: border-color 0.2s;">
+                    <div class="login-input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="login-email" required placeholder="Email Address">
                     </div>
                     
-                    <div class="settings-group" style="margin-bottom: 1.5rem;">
-                        <label style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">PASSWORD</label>
-                        <input type="password" id="login-password" required placeholder="••••••••" style="width: 100%; padding: 0.85rem 1.1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #fff; font-family: inherit; font-size: 0.9rem; transition: border-color 0.2s;">
+                    <div class="login-input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="login-password" required placeholder="Password">
                     </div>
 
-                    <button type="submit" class="inline-auth-btn-submit" id="login-submit-btn">PROCEED TO CONSOLE</button>
+                    <button type="submit" class="login-btn" id="login-submit-btn">PROCEED TO CONSOLE</button>
                 </form>
 
                 <!-- Sign Up Form -->
@@ -829,22 +800,22 @@
                     <div class="inline-auth-form-subtitle">Unlock unrestricted, permanent sandbox workspace.</div>
                     <div class="inline-auth-error" id="signup-error-msg"></div>
 
-                    <div class="settings-group" style="margin-bottom: 1.25rem;">
-                        <label style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">FULL NAME</label>
-                        <input type="text" id="signup-name" required placeholder="Jane Doe" style="width: 100%; padding: 0.85rem 1.1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #fff; font-family: inherit; font-size: 0.9rem; transition: border-color 0.2s;">
+                    <div class="login-input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="signup-name" required placeholder="Full Name">
                     </div>
                     
-                    <div class="settings-group" style="margin-bottom: 1.25rem;">
-                        <label style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">EMAIL ADDRESS</label>
-                        <input type="email" id="signup-email" required placeholder="name@domain.com" style="width: 100%; padding: 0.85rem 1.1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #fff; font-family: inherit; font-size: 0.9rem; transition: border-color 0.2s;">
+                    <div class="login-input-group">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="signup-email" required placeholder="Email Address">
                     </div>
                     
-                    <div class="settings-group" style="margin-bottom: 1.5rem;">
-                        <label style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem; display: block;">CHOOSE PASSWORD</label>
-                        <input type="password" id="signup-password" required placeholder="Minimum 6 characters" minlength="6" style="width: 100%; padding: 0.85rem 1.1rem; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; color: #fff; font-family: inherit; font-size: 0.9rem; transition: border-color 0.2s;">
+                    <div class="login-input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="signup-password" required placeholder="Choose Password" minlength="6">
                     </div>
 
-                    <button type="submit" class="inline-auth-btn-submit" id="signup-submit-btn">CREATE PROFILE</button>
+                    <button type="submit" class="login-btn" id="signup-submit-btn">CREATE PROFILE</button>
                 </form>
             </div>
         </div>
