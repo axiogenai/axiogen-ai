@@ -997,6 +997,11 @@
           // Sign out handler
           window.axiogenSignOut = async () => {
             await _sb.auth.signOut();
+            localStorage.removeItem('AXIOGEN_history');
+            localStorage.removeItem('AXIOGEN_current_session');
+            localStorage.removeItem('AXIOGEN_current_chat_id');
+            localStorage.removeItem('AXIOGEN_active_workspace');
+            localStorage.removeItem('AXIOGEN_tutor_active');
             localStorage.removeItem('AXIOGEN_guest_start_time');
             window.location.reload();
           };
