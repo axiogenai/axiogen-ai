@@ -82,7 +82,7 @@
         .login-input-group input:-webkit-autofill:hover, 
         .login-input-group input:-webkit-autofill:focus, 
         .login-input-group input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.05) inset !important;
+            -webkit-box-shadow: 0 0 0 1000px #121319 inset !important;
             -webkit-text-fill-color: #ffffff !important;
             transition: background-color 5000s ease-in-out 0s;
         }
@@ -165,6 +165,657 @@
             from { opacity: 0; transform: scale(0.95) translateY(20px); }
             to { opacity: 1; transform: scale(1) translateY(0); }
         }
+
+        /* ========== MARKETING LANDING PAGE ========== */
+        #landing-page-viewport {
+            position: fixed;
+            inset: 0;
+            background: #030408;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 255, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
+            z-index: 999999;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Space Grotesk', sans-serif;
+            color: #fff;
+            scroll-behavior: smooth;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s;
+        }
+
+        #landing-page-viewport.hidden {
+            transform: translateY(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Nav Header */
+        .landing-header {
+            width: 100%;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(3, 4, 8, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .landing-header-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 2rem;
+        }
+
+        .landing-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #fff;
+        }
+
+        .landing-logo img {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+        .landing-nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .landing-nav-links a {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        .landing-nav-links a:hover {
+            color: #00ffff;
+        }
+
+        .landing-auth-ctas {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .landing-btn-primary {
+            padding: 0.65rem 1.3rem;
+            background: #E6ECF2;
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: transform 0.2s, filter 0.2s;
+            box-shadow: 0 4px 20px rgba(230, 236, 242, 0.3);
+        }
+
+        .landing-btn-primary:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .landing-btn-secondary {
+            padding: 0.65rem 1.3rem;
+            background: none;
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .landing-btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.04);
+            color: #fff;
+        }
+
+        /* Hero */
+        .landing-hero {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 8rem 2rem 6rem;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .hero-glow-bubble {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .hero-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            color: #00ffff;
+            background: rgba(0, 255, 255, 0.04);
+            border: 1px solid rgba(0, 255, 255, 0.15);
+            padding: 5px 14px;
+            border-radius: 100px;
+            margin-bottom: 2rem;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+            text-transform: uppercase;
+        }
+
+        .landing-hero h1 {
+            font-size: 3.8rem;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-gradient-text {
+            background: linear-gradient(135deg, #fff 30%, #00ffff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .landing-hero p {
+            font-size: 1.15rem;
+            color: rgba(255, 255, 255, 0.65);
+            max-width: 680px;
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+        }
+
+        .hero-ctas {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 1.5rem;
+        }
+
+        .landing-btn-hero-primary {
+            padding: 1.1rem 2.2rem;
+            background: #E6ECF2;
+            color: #000;
+            border: none;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 10px 30px rgba(230, 236, 242, 0.35);
+        }
+
+        .landing-btn-hero-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(230, 236, 242, 0.45);
+        }
+
+        .landing-btn-hero-secondary {
+            padding: 1.1rem 2.2rem;
+            background: none;
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .landing-btn-hero-secondary:hover {
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateY(-2px);
+        }
+
+        .hero-subtext {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* Features Section */
+        .landing-features, .landing-pricing, .landing-faq {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 6rem 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2.5rem 2rem;
+            border-radius: 20px;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(0, 255, 255, 0.2);
+            background: rgba(0, 255, 255, 0.01);
+        }
+
+        .feat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(0, 255, 255, 0.05);
+            border: 1px solid rgba(0, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00ffff;
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+        }
+
+        .feature-card h3 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: #fff;
+        }
+
+        .feature-card p {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.5);
+            line-height: 1.6;
+        }
+
+        /* Pricing */
+        .pricing-grid {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            flex-wrap: wrap;
+            max-width: 850px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            flex: 1;
+            min-width: 280px;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 3rem 2.2rem;
+            border-radius: 24px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pricing-card.premium {
+            background: rgba(0, 255, 255, 0.01);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            box-shadow: 0 10px 40px rgba(0, 255, 255, 0.05);
+        }
+
+        .card-badge {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: rgba(255,255,255,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 4px 10px;
+            border-radius: 100px;
+        }
+
+        .card-badge.premium {
+            color: #00ffff;
+            background: rgba(0, 255, 255, 0.05);
+            border-color: rgba(0, 255, 255, 0.3);
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+        }
+
+        .pricing-card h3 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .price-val {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .price-val span {
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .price-desc {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 2rem;
+        }
+
+        .price-features {
+            list-style: none;
+            margin-bottom: 2.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex-grow: 1;
+        }
+
+        .price-features li {
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: rgba(255, 255, 255, 0.75);
+        }
+
+        .price-features li i {
+            font-size: 0.8rem;
+            color: #00ffff;
+        }
+
+        .price-features li.disabled {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .price-features li.disabled i {
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .pricing-btn {
+            width: 100%;
+            padding: 1rem;
+            background: none;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pricing-btn:hover {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: #fff;
+        }
+
+        .pricing-btn.premium {
+            background: #E6ECF2;
+            color: #000;
+            border: none;
+            box-shadow: 0 4px 20px rgba(230, 236, 242, 0.25);
+        }
+
+        .pricing-btn.premium:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        /* FAQ */
+        .faq-list {
+            max-width: 750px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .faq-item {
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 16px;
+            padding: 1.25rem 1.75rem;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .faq-item:hover {
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .faq-q {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .faq-q i {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.4);
+            transition: transform 0.25s ease;
+        }
+
+        .faq-item.active {
+            border-color: rgba(0, 255, 255, 0.15);
+            background: rgba(0, 255, 255, 0.005);
+        }
+
+        .faq-item.active .faq-q i {
+            transform: rotate(180deg);
+            color: #00ffff;
+        }
+
+        .faq-a {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s cubic-bezier(0.16, 1, 0.3, 1), margin-top 0.2s;
+            margin-top: 0;
+        }
+
+        .faq-item.active .faq-a {
+            max-height: 150px;
+            margin-top: 0.75rem;
+        }
+
+        .faq-a p {
+            font-size: 0.875rem;
+            color: rgba(255, 255, 255, 0.55);
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        .landing-footer {
+            width: 100%;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 4rem 2rem 2.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .footer-stats {
+            display: flex;
+            justify-content: space-around;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-bottom: 4rem;
+            text-align: center;
+        }
+
+        .stat-item h4 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #00ffff;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 15px rgba(0, 255, 255, 0.15);
+        }
+
+        .stat-item p {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.4);
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .landing-header-container {
+                padding: 1.25rem 1.5rem;
+            }
+            .landing-nav-links {
+                display: none;
+            }
+            .landing-hero h1 {
+                font-size: 2.6rem;
+            }
+            .landing-hero p {
+                font-size: 1rem;
+            }
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        /* ========== PULL TO REFRESH ========== */
+        .pull-to-refresh {
+            position: fixed;
+            top: -80px;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            z-index: 99999;
+            pointer-events: none;
+            transition: transform 0.1s ease-out, opacity 0.2s;
+            opacity: 0;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .ptr-icon-wrap {
+            position: relative;
+            width: 36px;
+            height: 36px;
+            background: rgba(15, 15, 20, 0.75);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #00ffff;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 10px rgba(0, 255, 255, 0.1);
+            transition: transform 0.15s;
+        }
+
+        .ptr-icon {
+            font-size: 0.95rem;
+            transition: transform 0.2s ease;
+        }
+
+        .ptr-loader {
+            position: absolute;
+            inset: 0;
+            border: 2px solid transparent;
+            border-top-color: #00ffff;
+            border-radius: 50%;
+            display: none;
+            animation: ptrSpin 0.7s linear infinite;
+        }
+
+        @keyframes ptrSpin {
+            to { transform: rotate(360deg); }
+        }
+
+        .ptr-text {
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .pull-to-refresh.pulling {
+            opacity: 1;
+        }
     </style>
     <link rel="stylesheet" href="style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -195,6 +846,188 @@
 </head>
 
 <body class="dark-theme loading">
+    <!-- Pull to Refresh Indicator -->
+    <div id="pull-to-refresh" class="pull-to-refresh">
+        <div class="ptr-icon-wrap">
+            <i class="fas fa-arrow-down ptr-icon" id="ptr-icon"></i>
+            <div class="ptr-loader" id="ptr-loader"></div>
+        </div>
+        <span class="ptr-text" id="ptr-text">Pull to refresh</span>
+    </div>
+
+    <!-- Stunning Marketing Landing Page Viewport -->
+    <div id="landing-page-viewport">
+        <!-- Sticky Navigation Bar -->
+        <header class="landing-header">
+            <div class="landing-header-container">
+                <div class="landing-logo">
+                    <img src="logo.png" alt="AXIOGEN Logo">
+                    <span>AXIOGEN</span>
+                </div>
+                <div class="landing-nav-links">
+                    <a href="#features">Features</a>
+                    <a href="#pricing">Pricing</a>
+                    <a href="#faq">FAQ</a>
+                </div>
+                <div class="landing-auth-ctas">
+                    <button class="landing-btn-secondary" onclick="openInlineAuthModal()">Sign In</button>
+                    <button class="landing-btn-primary" onclick="launchAxiogenSandbox()">Launch Workspace</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="landing-hero">
+            <div class="hero-glow-bubble"></div>
+            <div class="hero-badge">AXIOGEN ENTERPRISE WORKSPACE 3.0</div>
+            <h1>State-of-the-Art<br><span class="hero-gradient-text">Intelligent Platform</span></h1>
+            <p>Experience specialized high-fidelity workspaces for document intelligence, secure code execution, deep research, and voice synthesis in a client-side secured, zero-logging environment.</p>
+            <div class="hero-ctas">
+                <button class="landing-btn-hero-primary" onclick="launchAxiogenSandbox()">
+                    <span>LAUNCH FREE WORKSPACE</span>
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="landing-btn-hero-secondary" onclick="openInlineAuthModal()">
+                    <span>ACCESS CONSOLE</span>
+                </button>
+            </div>
+            <div class="hero-subtext">No credit card required. Instant 5-minute guest access.</div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="landing-features">
+            <div class="section-header">
+                <h2>Elite AI Tools. Seamless Workflow.</h2>
+                <p>AXIOGEN gathers advanced task-oriented modules inside a singular, state-of-the-art console.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feat-icon"><i class="fas fa-microphone"></i></div>
+                    <h3>NEURA Speech</h3>
+                    <p>High-fidelity, real-time voice synthesis and speech recognition with visual soundwave panels.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feat-icon"><i class="fas fa-terminal"></i></div>
+                    <h3>AXIOGEN Code</h3>
+                    <p>Fully isolated, secure execution environment to compile, test, and execute scripts with live console returns.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feat-icon"><i class="fas fa-file-invoice"></i></div>
+                    <h3>Document Intelligence</h3>
+                    <p>Instantly extract deep insights, cross-reference data, and build summaries from complex PDFs, DOCX, and Sheets.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feat-icon"><i class="fas fa-search-dollar"></i></div>
+                    <h3>Deep Analytical Engine</h3>
+                    <p>Highly specialized analysis, logic tracing, and real-time market data models for deep analytical queries.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Pricing Section -->
+        <section id="pricing" class="landing-pricing">
+            <div class="section-header">
+                <h2>Simple, Transparent Plans</h2>
+                <p>Choose the level of workspace access that fits your business workflow.</p>
+            </div>
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <div class="card-badge">TRIAL</div>
+                    <h3>Free Guest Workspace</h3>
+                    <div class="price-val">Free</div>
+                    <p class="price-desc">Perfect to test capabilities before subscribing.</p>
+                    <ul class="price-features">
+                        <li><i class="fas fa-check"></i> 5-Minute persistent workspace sessions</li>
+                        <li><i class="fas fa-check"></i> Basic Chat & Voice Engine</li>
+                        <li><i class="fas fa-check"></i> Local chat history storage</li>
+                        <li class="disabled"><i class="fas fa-times"></i> Document uploads & extraction</li>
+                        <li class="disabled"><i class="fas fa-times"></i> Code execution compiler</li>
+                        <li class="disabled"><i class="fas fa-times"></i> Infinite runtime workspace</li>
+                    </ul>
+                    <button class="pricing-btn" onclick="launchAxiogenSandbox()">Launch Guest Workspace</button>
+                </div>
+
+                <div class="pricing-card premium">
+                    <div class="card-badge premium">POPULAR</div>
+                    <h3>Infinite Workspace</h3>
+                    <div class="price-val">$20<span>/month</span></div>
+                    <p class="price-desc">Complete, unrestricted access for professionals.</p>
+                    <ul class="price-features">
+                        <li><i class="fas fa-check"></i> Unlimited workspace sessions</li>
+                        <li><i class="fas fa-check"></i> Document uploads & extraction</li>
+                        <li><i class="fas fa-check"></i> Secure code execution compiler</li>
+                        <li><i class="fas fa-check"></i> Advanced Gemini 2.5 & Reasoning models</li>
+                        <li><i class="fas fa-check"></i> Premium Extended Speech Synthesis</li>
+                        <li><i class="fas fa-check"></i> Priority support & zero rate limits</li>
+                    </ul>
+                    <button class="pricing-btn premium" onclick="openInlineAuthModal('signup')">Upgrade to Pro</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="landing-faq">
+            <div class="section-header">
+                <h2>Frequently Asked Questions</h2>
+                <p>Everything you need to know about AXIOGEN access and security.</p>
+            </div>
+            <div class="faq-list">
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-q">
+                        <span>What is the 5-Minute Guest Workspace?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-a">
+                        <p>It is a temporary, fully featured trial workspace. You can chat with base models and test voice features for 5 minutes without creating an account. The timer is persisted in localStorage so refreshes do not reset it. Once expired, you will need to Log In or Register to continue.</p>
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-q">
+                        <span>Is my data securely managed?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-a">
+                        <p>Yes. AXIOGEN operates in a client-side environment. We use anonymous Supabase session handlers and zero-logging endpoints to process requests. Your chat histories are stored strictly inside your browser's local cache (localStorage) and never logged to database servers.</p>
+                    </div>
+                </div>
+                <div class="faq-item" onclick="toggleFaq(this)">
+                    <div class="faq-q">
+                        <span>How do I unlock file uploads and code compiling?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-a">
+                        <p>These advanced tools require secure cloud environments and premium AI completions. To prevent abuse, they are restricted to logged-in accounts. Simply Sign Up for a free profile to begin using Docs, Sheets, and AXIOGEN Code workspaces.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Social Proof Footer -->
+        <footer class="landing-footer">
+            <div class="footer-stats">
+                <div class="stat-item">
+                    <h4>500K+</h4>
+                    <p>Secured completions</p>
+                </div>
+                <div class="stat-item">
+                    <h4>100%</h4>
+                    <p>Privacy / Zero data logging</p>
+                </div>
+                <div class="stat-item">
+                    <h4>&lt; 200ms</h4>
+                    <p>Voice response latency</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 AXIOGEN Intelligent Platform. All rights reserved.</p>
+                <div class="footer-links">
+                    <a onclick="openInlineAuthModal()">Privacy Policy</a>
+                    <a onclick="openInlineAuthModal()">Terms of Service</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
     <div class="app-container">
         <!-- Sidebar backdrop overlay for mobile/tablet -->
         <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
@@ -241,7 +1074,7 @@
                     <span class="material-symbols-outlined axiogen-icon" style="color: #00ffff; text-shadow: 0 0 10px rgba(0,255,255,0.5);">graphic_eq</span> NEURA (Voice)
                 </div>
                 <div class="axiogen-sidebar-item workspace-btn" data-workspace="nsfw" style="display: none !important;">
-                    <span class="material-symbols-outlined axiogen-icon" style="color: #ff3366; text-shadow: 0 0 10px rgba(255,51,102,0.5);">explicit</span> NSFW (Voice)
+                    <span class="material-symbols-outlined axiogen-icon" style="color: #d946ef; text-shadow: 0 0 10px rgba(217,70,239,0.5);">spatial_audio</span> Extended Voice
                 </div>
                 <div class="axiogen-sidebar-item workspace-btn" data-workspace="examination">
                     <span class="material-symbols-outlined axiogen-icon">school</span> Examination
@@ -314,45 +1147,113 @@
                             Meta Llama 3.2 3B
                         </div>
                         <div class="dropdown-options" id="dropdown-options">
-                            <div class="option" data-value="nvidia/nemotron-3-super-120b-a12b:free">NVIDIA Nemotron-3
-                                Super 120B</div>
-                            <div class="option" data-value="poolside/laguna-m.1:free">Poolside Laguna M.1</div>
-                            <div class="option" data-value="openai/gpt-oss-120b:free">OpenAI GPT-OSS 120B</div>
-                            <div class="option" data-value="z-ai/glm-4.5-air:free">Z-AI GLM-4.5 Air</div>
-                            <div class="option" data-value="minimax/minimax-m2.5:free">Minimax M2.5</div>
-                            <div class="option" data-value="nvidia/nemotron-3-nano-30b-a3b:free">NVIDIA Nemotron-3 Nano
-                                30B</div>
-                            <div class="option" data-value="openai/gpt-oss-20b:free">OpenAI GPT-OSS 20B</div>
-                            <div class="option" data-value="inclusionai/ring-2.6-1t:free">InclusionAI Ring-2.6-1T</div>
-                            <div class="option" data-value="poolside/laguna-xs.2:free">Poolside Laguna XS.2</div>
-                            <div class="option" data-value="nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free">NVIDIA
-                                Nemotron-3 Nano Omni (Reasoning)</div>
-                            <div class="option" data-value="google/gemma-4-31b-it:free">Google Gemma 4 31B IT</div>
-                            <div class="option" data-value="nvidia/nemotron-nano-9b-v2:free">NVIDIA Nemotron Nano 9B V2
+                            <div class="dropdown-group-header"><i class="fas fa-brain"></i> DEEP REASONING & LOGIC</div>
+                            <div class="option" data-value="liquid/lfm-2.5-1.2b-thinking:free" data-name="LiquidAI LFM Thinking">
+                                <span>LiquidAI LFM Thinking</span>
+                                <span class="option-badge reasoning">REASONING</span>
                             </div>
-                            <div class="option" data-value="nvidia/nemotron-nano-12b-v2-vl:free">NVIDIA Nemotron Nano
-                                12B V2 VL</div>
-                            <div class="option" data-value="baidu/cobuddy:free">Baidu CoBuddy</div>
-                            <div class="option" data-value="google/gemma-4-26b-a4b-it:free">Google Gemma 4 26B A4B</div>
-                            <div class="option" data-value="nvidia/llama-nemotron-embed-vl-1b-v2:free">NVIDIA Llama
-                                Nemotron Embed</div>
-                            <div class="option" data-value="qwen/qwen3-coder:free">Qwen Qwen3 Coder 480B</div>
-                            <div class="option" data-value="qwen/qwen3-next-80b-a3b-instruct:free">Qwen Qwen3 Next 80B
+                            <div class="option" data-value="nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free" data-name="NVIDIA Nemotron Omni">
+                                <span>NVIDIA Nemotron Omni</span>
+                                <span class="option-badge reasoning">REASONING</span>
                             </div>
-                            <div class="option" data-value="liquid/lfm-2.5-1.2b-thinking:free">LiquidAI LFM-2.5 Thinking
+                            <div class="option" data-value="meta-llama/llama-3.3-70b-instruct:free" data-name="Meta Llama 3.3 70B">
+                                <span>Meta Llama 3.3 70B</span>
+                                <span class="option-badge pro">PRO</span>
                             </div>
-                            <div class="option" data-value="liquid/lfm-2.5-1.2b-instruct:free">LiquidAI LFM-2.5
-                                Instruct</div>
-                            <div class="option" data-value="meta-llama/llama-3.3-70b-instruct:free">Meta Llama 3.3 70B
+                            <div class="option" data-value="nousresearch/hermes-3-llama-3.1-405b:free" data-name="Nous Hermes 3 405B">
+                                <span>Nous Hermes 3 405B</span>
+                                <span class="option-badge pro">PRO</span>
                             </div>
-                            <div class="option" data-value="baidu/qianfan-ocr-fast:free">Baidu Qianfan OCR Fast</div>
-                            <div class="option"
-                                data-value="cognitivecomputations/dolphin-mistral-24b-venice-edition:free">Dolphin
-                                Mistral 24B (Venice)</div>
-                            <div class="option active" data-value="meta-llama/llama-3.2-3b-instruct:free">Meta Llama 3.2 3B
+                            <div class="option" data-value="nvidia/nemotron-3-super-120b-a12b:free" data-name="NVIDIA Nemotron Super">
+                                <span>NVIDIA Nemotron Super</span>
+                                <span class="option-badge pro">PRO</span>
                             </div>
-                            <div class="option" data-value="nousresearch/hermes-3-llama-3.1-405b:free">Nous Hermes 3
-                                405B</div>
+                            <div class="option" data-value="openai/gpt-oss-120b:free" data-name="OpenAI GPT-OSS 120B">
+                                <span>OpenAI GPT-OSS 120B</span>
+                                <span class="option-badge pro">PRO</span>
+                            </div>
+
+                            <div class="dropdown-group-header"><i class="fas fa-code"></i> ELITE CODING & PIPELINES</div>
+                            <div class="option" data-value="qwen/qwen3-coder:free" data-name="Qwen Qwen3 Coder">
+                                <span>Qwen Qwen3 Coder</span>
+                                <span class="option-badge code">CODING</span>
+                            </div>
+                            <div class="option" data-value="liquid/lfm-2.5-1.2b-instruct:free" data-name="LiquidAI LFM Instruct">
+                                <span>LiquidAI LFM Instruct</span>
+                                <span class="option-badge code">TASKS</span>
+                            </div>
+                            <div class="option" data-value="poolside/laguna-m.1:free" data-name="Poolside Laguna M.1">
+                                <span>Poolside Laguna M.1</span>
+                                <span class="option-badge code">CODING</span>
+                            </div>
+                            <div class="option" data-value="poolside/laguna-xs.2:free" data-name="Poolside Laguna XS.2">
+                                <span>Poolside Laguna XS.2</span>
+                                <span class="option-badge code">FAST</span>
+                            </div>
+
+                            <div class="dropdown-group-header"><i class="fas fa-bolt"></i> SPEED-OPTIMIZED CHAT</div>
+                            <div class="option active" data-value="meta-llama/llama-3.2-3b-instruct:free" data-name="Meta Llama 3.2 3B">
+                                <span>Meta Llama 3.2 3B</span>
+                                <span class="option-badge speed">FREE</span>
+                            </div>
+                            <div class="option" data-value="google/gemma-4-26b-a4b-it:free" data-name="Google Gemma 4 26B">
+                                <span>Google Gemma 4 26B</span>
+                                <span class="option-badge speed">FREE</span>
+                            </div>
+                            <div class="option" data-value="nvidia/nemotron-nano-9b-v2:free" data-name="NVIDIA Nemotron 9B">
+                                <span>NVIDIA Nemotron 9B</span>
+                                <span class="option-badge speed">FREE</span>
+                            </div>
+                            <div class="option" data-value="z-ai/glm-4.5-air:free" data-name="Z-AI GLM-4.5 Air">
+                                <span>Z-AI GLM-4.5 Air</span>
+                                <span class="option-badge speed">FREE</span>
+                            </div>
+                            <div class="option" data-value="minimax/minimax-m2.5:free" data-name="Minimax M2.5">
+                                <span>Minimax M2.5</span>
+                                <span class="option-badge speed">FREE</span>
+                            </div>
+                            <div class="option" data-value="nvidia/nemotron-3-nano-30b-a3b:free" data-name="NVIDIA Nemotron 30B">
+                                <span>NVIDIA Nemotron 30B</span>
+                                <span class="option-badge speed">FREE</span>
+                            </div>
+                            <div class="option" data-value="openai/gpt-oss-20b:free" data-name="OpenAI GPT-OSS 20B">
+                                <span>OpenAI GPT-OSS 20B</span>
+                                <span class="option-badge speed">FREE</span>
+                            </div>
+                            <div class="option" data-value="inclusionai/ring-2.6-1t:free" data-name="InclusionAI Ring 1T">
+                                <span>InclusionAI Ring 1T</span>
+                                <span class="option-badge speed">FREE</span>
+                            </div>
+                            <div class="option" data-value="baidu/cobuddy:free" data-name="Baidu CoBuddy">
+                                <span>Baidu CoBuddy</span>
+                                <span class="option-badge speed">FREE</span>
+                            </div>
+                            <div class="option" data-value="qwen/qwen3-next-80b-a3b-instruct:free" data-name="Qwen Qwen3 Next 80B">
+                                <span>Qwen Qwen3 Next 80B</span>
+                                <span class="option-badge speed">FREE</span>
+                            </div>
+                            <div class="option" data-value="cognitivecomputations/dolphin-mistral-24b-venice-edition:free" data-name="Dolphin Mistral 24B">
+                                <span>Dolphin Mistral 24B</span>
+                                <span class="option-badge speed">FREE</span>
+                            </div>
+
+                            <div class="dropdown-group-header"><i class="fas fa-eye"></i> MULTIMODAL & VISION</div>
+                            <div class="option" data-value="nvidia/nemotron-nano-12b-v2-vl:free" data-name="NVIDIA Nemotron VL">
+                                <span>NVIDIA Nemotron VL</span>
+                                <span class="option-badge vision">VISION</span>
+                            </div>
+                            <div class="option" data-value="baidu/qianfan-ocr-fast:free" data-name="Baidu Qianfan OCR Fast">
+                                <span>Baidu Qianfan OCR Fast</span>
+                                <span class="option-badge vision">OCR</span>
+                            </div>
+                            <div class="option" data-value="google/gemma-4-31b-it:free" data-name="Google Gemma 4 31B">
+                                <span>Google Gemma 4 31B</span>
+                                <span class="option-badge vision">KNOWLEDGE</span>
+                            </div>
+                            <div class="option" data-value="nvidia/llama-nemotron-embed-vl-1b-v2:free" data-name="NVIDIA Llama Nemotron">
+                                <span>NVIDIA Llama Nemotron</span>
+                                <span class="option-badge vision">EMBED</span>
+                            </div>
                         </div>
                     </div>
                     
@@ -533,7 +1434,7 @@
                         <div class="nsfw-subtitles" id="nsfw-subtitles">
                             <div class="nsfw-subtitle-line user-line" id="nsfw-user-subtitle"></div>
                             <div class="nsfw-subtitle-line response-line" id="nsfw-response-subtitle">
-                                <span class="subtitle-hint">Tap and start talking with LUST</span>
+                                <span class="subtitle-hint">Tap and start talking with Lumina</span>
                             </div>
                         </div>
                     </div>
@@ -806,7 +1707,7 @@
                 <!-- Sign Up Form -->
                 <form id="inline-signup-form" class="inline-auth-form" onsubmit="handleInlineSignup(event)">
                     <div class="inline-auth-form-title">Create Account</div>
-                    <div class="inline-auth-form-subtitle">Unlock unrestricted, permanent sandbox workspace.</div>
+                    <div class="inline-auth-form-subtitle">Unlock unrestricted, permanent workspace.</div>
                     <div class="inline-auth-error" id="signup-error-msg"></div>
 
                     <div class="login-input-group">
@@ -922,6 +1823,9 @@
             
             if (session) {
                 // EXPOSE USER & RESTORE SESSION
+                const landing = document.getElementById('landing-page-viewport');
+                if (landing) landing.style.display = 'none';
+
                 window.AXIOGEN_USER = session.user;
                 window.AXIOGEN_SESSION = session;
 
@@ -1005,6 +1909,150 @@
             localStorage.removeItem('AXIOGEN_guest_start_time');
             window.location.reload();
           };
+
+          // Launch workspace
+          function launchAxiogenSandbox() {
+              const landing = document.getElementById('landing-page-viewport');
+              if (landing) {
+                  landing.classList.add('hidden');
+              }
+              // Save that they visited so we can open guided tour for first timers!
+              const hasVisited = localStorage.getItem('AXIOGEN_visited');
+              if (!hasVisited) {
+                  localStorage.setItem('AXIOGEN_visited', 'true');
+                  // Trigger guided tour!
+                  setTimeout(() => {
+                      if (typeof window.startAxiogenTour === 'function') {
+                          window.startAxiogenTour();
+                      }
+                  }, 1200);
+              }
+          }
+          window.launchAxiogenSandbox = launchAxiogenSandbox;
+
+          // Open inline auth modal
+          function openInlineAuthModal(tab = 'login') {
+              // Smoothly launch workspace view behind
+              const landing = document.getElementById('landing-page-viewport');
+              if (landing) landing.classList.add('hidden');
+
+              const authOverlay = document.getElementById('inline-auth-overlay');
+              if (authOverlay) {
+                  authOverlay.classList.add('active');
+                  switchAuthTab(tab);
+              }
+          }
+          window.openInlineAuthModal = openInlineAuthModal;
+
+          // Toggle FAQ Accordion
+          function toggleFaq(el) {
+              const isActive = el.classList.contains('active');
+              document.querySelectorAll('.faq-item').forEach(item => item.classList.remove('active'));
+              if (!isActive) {
+                  el.classList.add('active');
+              }
+          }
+          window.toggleFaq = toggleFaq;
+
+          // ══════ PULL TO REFRESH LOGIC ══════
+          (() => {
+              let startY = 0;
+              let currentY = 0;
+              let isPulling = false;
+              const threshold = 75;
+              const maxPull = 120;
+
+              const ptr = document.getElementById('pull-to-refresh');
+              const ptrIcon = document.getElementById('ptr-icon');
+              const ptrLoader = document.getElementById('ptr-loader');
+              const ptrText = document.getElementById('ptr-text');
+
+              const getScrollTop = () => {
+                  const chatDisplay = document.getElementById('chat-display');
+                  if (chatDisplay && chatDisplay.style.display !== 'none') {
+                      return chatDisplay.scrollTop;
+                  }
+                  return document.documentElement.scrollTop || document.body.scrollTop;
+              };
+
+              window.addEventListener('touchstart', (e) => {
+                  if (getScrollTop() <= 2) {
+                      startY = e.touches[0].pageY;
+                      isPulling = true;
+                      if (ptr) {
+                          ptr.style.transition = 'none';
+                          ptr.classList.add('pulling');
+                      }
+                  }
+              }, { passive: true });
+
+              window.addEventListener('touchmove', (e) => {
+                  if (!isPulling) return;
+                  currentY = e.touches[0].pageY;
+                  const diff = currentY - startY;
+
+                  if (diff > 0) {
+                      const pullDist = Math.min(maxPull, diff * 0.45);
+                      if (ptr) {
+                          ptr.style.transform = `translateY(${pullDist}px)`;
+                          ptr.style.opacity = Math.min(1, pullDist / threshold);
+                      }
+
+                      const angle = Math.min(180, (pullDist / threshold) * 180);
+                      if (ptrIcon) {
+                          ptrIcon.style.transform = `rotate(${angle}deg)`;
+                      }
+
+                      if (pullDist >= threshold) {
+                          if (ptrText) ptrText.textContent = 'Release to refresh';
+                          if (ptrIcon) ptrIcon.style.color = '#00ffff';
+                      } else {
+                          if (ptrText) ptrText.textContent = 'Pull to refresh';
+                          if (ptrIcon) ptrIcon.style.color = 'rgba(0, 255, 255, 0.7)';
+                      }
+                  }
+              }, { passive: true });
+
+              window.addEventListener('touchend', () => {
+                  if (!isPulling) return;
+                  isPulling = false;
+
+                  const diff = currentY - startY;
+                  const pullDist = Math.min(maxPull, diff * 0.45);
+
+                  if (ptr) {
+                      ptr.style.transition = 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s';
+                  }
+
+                  if (pullDist >= threshold) {
+                      if (ptr) {
+                          ptr.style.transform = `translateY(${threshold - 10}px)`;
+                      }
+                      if (ptrIcon) ptrIcon.style.display = 'none';
+                      if (ptrLoader) ptrLoader.style.display = 'block';
+                      if (ptrText) ptrText.textContent = 'Refreshing...';
+
+                      setTimeout(() => {
+                          window.location.reload();
+                      }, 800);
+                  } else {
+                      if (ptr) {
+                          ptr.style.transform = 'translateY(0)';
+                          ptr.classList.remove('pulling');
+                      }
+                      setTimeout(() => {
+                          if (ptrIcon) {
+                              ptrIcon.style.display = 'block';
+                              ptrIcon.style.transform = 'rotate(0deg)';
+                          }
+                          if (ptrLoader) ptrLoader.style.display = 'none';
+                          if (ptrText) ptrText.textContent = 'Pull to refresh';
+                      }, 300);
+                  }
+                  startY = 0;
+                  currentY = 0;
+              });
+          })();
         </script>
 
         <!-- Search Chats Modal Overlay -->
@@ -1031,6 +2079,158 @@
                 </div>
             </div>
         </div>
+
+        <!-- Interactive Guided Onboarding Tour Overlay -->
+        <div id="axiogen-tour-overlay" class="tour-overlay" style="display: none;">
+            <div class="tour-backdrop" onclick="endAxiogenTour()"></div>
+            <div class="tour-card" id="tour-card">
+                <div class="tour-progress">
+                    <span class="tour-dot active" data-step="1"></span>
+                    <span class="tour-dot" data-step="2"></span>
+                    <span class="tour-dot" data-step="3"></span>
+                    <span class="tour-dot" data-step="4"></span>
+                </div>
+                <h3 id="tour-title">Workspace Console</h3>
+                <p id="tour-text">Access your specialized modules: NEURA speech synthesizer, Sheets builder, Doc AI analyzer, compiler pipelines, or custom deep research nodes.</p>
+                <div class="tour-footer">
+                    <button class="tour-btn-skip" onclick="endAxiogenTour()">Skip</button>
+                    <button class="tour-btn-next" onclick="nextTourStep()">Next <i class="fas fa-chevron-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+          // ══════ AXIOGEN GUIDED ONBOARDING TOUR ══════
+          let tourStep = 1;
+          const tourSteps = [
+              {
+                  target: '#sidebar',
+                  title: 'Workspace Console',
+                  text: 'Access highly specialized task workspaces here: NEURA Speech synthesis, secure Code execution, Document intelligence, Sheets processing, and Deep analytical engines.',
+                  position: 'right'
+              },
+              {
+                  target: '#model-dropdown',
+                  title: 'Grouped Model Selector',
+                  text: 'Select curated models tailored for speed, advanced logic, programming, or vision tasks. They are now grouped cleanly with capability labels.',
+                  position: 'bottom'
+              },
+              {
+                  target: '.input-container',
+                  title: 'Premium Prompt & Enhancer',
+                  text: 'Type your prompt here. Click the Sparkle button to automatically enhance, restructure, and optimize your prompts before sending.',
+                  position: 'top'
+              },
+              {
+                  target: '.workspace-btn[data-workspace=\"neura\"]',
+                  title: 'NEURA Voice Assistant',
+                  text: 'Unlock real-time voice synthesis and chat in our secure client-side environment. Zero logging, 100% private.',
+                  position: 'right'
+              }
+          ];
+
+          function startAxiogenTour() {
+              const tourOverlay = document.getElementById('axiogen-tour-overlay');
+              if (!tourOverlay) return;
+              tourOverlay.style.display = 'flex';
+              tourStep = 1;
+              showTourStep(1);
+          }
+          window.startAxiogenTour = startAxiogenTour;
+
+          function endAxiogenTour() {
+              const tourOverlay = document.getElementById('axiogen-tour-overlay');
+              if (tourOverlay) tourOverlay.style.display = 'none';
+              document.querySelectorAll('.tour-highlight-active').forEach(el => {
+                  el.classList.remove('tour-highlight-active');
+              });
+          }
+          window.endAxiogenTour = endAxiogenTour;
+
+          function nextTourStep() {
+              if (tourStep >= tourSteps.length) {
+                  endAxiogenTour();
+              } else {
+                  tourStep++;
+                  showTourStep(tourStep);
+              }
+          }
+          window.nextTourStep = nextTourStep;
+
+          function showTourStep(stepNum) {
+              const step = tourSteps[stepNum - 1];
+              const card = document.getElementById('tour-card');
+              const title = document.getElementById('tour-title');
+              const text = document.getElementById('tour-text');
+              const dots = document.querySelectorAll('.tour-dot');
+              
+              if (!step || !card || !title || !text) return;
+
+              title.textContent = step.title;
+              text.textContent = step.text;
+
+              // Update progress dots
+              dots.forEach((dot, idx) => {
+                  if (idx + 1 === stepNum) {
+                      dot.classList.add('active');
+                  } else {
+                      dot.classList.remove('active');
+                  }
+              });
+
+              // Clean previous highlights
+              document.querySelectorAll('.tour-highlight-active').forEach(el => {
+                  el.classList.remove('tour-highlight-active');
+              });
+
+              // Highlight target element
+              const targetEl = document.querySelector(step.target);
+              if (targetEl) {
+                  targetEl.classList.add('tour-highlight-active');
+                  
+                  // Position the card relative to the target element if on desktop
+                  if (window.innerWidth > 768) {
+                      const rect = targetEl.getBoundingClientRect();
+                      card.style.position = 'absolute';
+                      card.style.transform = 'none';
+                      
+                      if (step.position === 'right') {
+                          card.style.top = `${rect.top + (rect.height / 2) - 100}px`;
+                          card.style.left = `${rect.right + 20}px`;
+                      } else if (step.position === 'bottom') {
+                          card.style.top = `${rect.bottom + 20}px`;
+                          card.style.left = `${rect.left + (rect.width / 2) - 175}px`;
+                      } else if (step.position === 'top') {
+                          card.style.top = `${rect.top - 220}px`;
+                          card.style.left = `${rect.left + (rect.width / 2) - 175}px`;
+                      }
+                  } else {
+                      // Center the card on mobile
+                      card.style.position = 'fixed';
+                      card.style.bottom = '30px';
+                      card.style.left = '50%';
+                      card.style.top = 'auto';
+                      card.style.transform = 'translateX(-50%)';
+                  }
+              } else {
+                  // Fallback centering if target is missing
+                  card.style.position = 'fixed';
+                  card.style.top = '50%';
+                  card.style.left = '50%';
+                  card.style.transform = 'translate(-50%, -50%)';
+              }
+
+              // Update next button label on final step
+              const nextBtn = card.querySelector('.tour-btn-next');
+              if (nextBtn) {
+                  if (stepNum === tourSteps.length) {
+                      nextBtn.innerHTML = 'Finish <i class="fas fa-check"></i>';
+                  } else {
+                      nextBtn.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
+                  }
+              }
+          }
+        </script>
 
         <script src="forge.js" type="module"></script>
         <script src="main.js" type="module"></script>
