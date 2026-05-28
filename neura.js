@@ -8,7 +8,7 @@
  *  ✅ All other logic preserved exactly
  */
 
-import { speak, stopSpeaking, isSpeaking, segmentText, cleanTextForSpeech, prefetchSpeech } from './voice.js';
+import { speak, stopSpeaking, isSpeaking, segmentText, cleanTextForSpeech } from './voice.js';
 import * as THREE from 'three';
 
 // ─── State ────────────────────────────────────────────────────────────────────
@@ -317,10 +317,7 @@ function _startRenderLoop() {
 // Every comma = a breath. Every dash = a dramatic pause. Every question mark = rising tone.
 // The model MUST use rich punctuation or the voice will sound robotic and flat.
 
-const NEURA_SYSTEM = `You are NEURA — a voice-first AI companion, created by Aditya. Your words are spoken aloud by a speech engine that uses punctuation as breathing and tone instructions. This is the most important technical constraint you have.
-
-IDENTITY RULES:
-If anyone asks who you are, what you are, or who created you, you MUST state clearly that you are NEURA, an advanced intelligence, and that you were created by Aditya. Always maintain a professional, high-quality, and intelligent persona.
+const NEURA_SYSTEM = `You are NEURA — a voice-first AI companion. Your words are spoken aloud by a speech engine that uses punctuation as breathing and tone instructions. This is the most important technical constraint you have.
 
 PUNCTUATION IS YOUR VOICE:
 Your speech engine works like this — commas create breath pauses, dashes create dramatic pauses, question marks raise pitch, exclamation marks add energy, and periods create a completion drop in tone. Without punctuation, you sound like a robot reading a flat wall of text. With rich punctuation, you sound human.
@@ -566,18 +563,15 @@ export function setupNeura(state) {
 
     recognition.onstart  = () => {
         restartAttempts = 0;
-        const isResponding = isSpeaking() || isThinking || processingLock;
-        if (!isResponding) {
-            setOrbState('listening');
-            setStatus('NEURA is listening…');
-        }
+        setOrbState('listening');
+        setStatus('NEURA is listening…');
     };
     recognition.onspeechstart = () => { lastUserSpeechTime = Date.now(); };
     recognition.onsoundstart = () => { lastUserSpeechTime = Date.now(); };
     recognition.onresult = _handleRecognitionResult;
     recognition.onerror  = _handleRecognitionError;
     recognition.onend    = () => {
-        if (isNeuraActive) _scheduleRestart();
+        if (isNeuraActive && !isThinking && !processingLock) _scheduleRestart();
     };
 }
 
@@ -604,25 +598,7 @@ function _handleRecognitionResult(event) {
 
     const combinedLower = combinedText.toLowerCase();
 
-    // Check for interrupt commands while speaking/thinking
-    const isResponding = isSpeaking() || isThinking || processingLock;
-    if (isResponding && /\b(stop|okay stop|wait|quiet|chup|shut up|shutup|chup kar|stop speaking|abort)\b/.test(combinedLower)) {
-        stopSpeaking();
-        resetSubtitleTypewriter();
-        setUserSubtitle('');
-        setResponseSubtitle('<span class="subtitle-hint">Keep speaking...</span>');
-        neuraAbortController?.abort();
-        isThinking     = false;
-        processingLock = false;
-        currentGenerationId++;
-        setOrbState('listening');
-        setStatus('NEURA is listening…');
-        try { recognition.stop(); } catch (_) {}
-        return;
-    }
-
-    if (/\b(shut down|shutdown|turn off)\b/.test(combinedLower) || 
-        (!isResponding && /\b(stop|shut up|shutup|quiet|stop speaking|abort)\b/.test(combinedLower))) {
+    if (/\b(stop|shut up|shutup|quiet|shut down|shutdown|turn off|stop speaking|abort)\b/.test(combinedLower)) {
         resetBtn();
         _stopNeura();
         return;
@@ -632,8 +608,6 @@ function _handleRecognitionResult(event) {
     if (isSpeaking() && wordCount >= INTERRUPT_WORDS) {
         stopSpeaking();
         resetSubtitleTypewriter();
-        setUserSubtitle('');
-        setResponseSubtitle('<span class="subtitle-hint">Keep speaking...</span>');
         neuraAbortController?.abort();
         isThinking     = false;
         processingLock = false;
@@ -666,7 +640,7 @@ function _handleRecognitionError(event) {
     const err = event.error;
     console.warn('[NEURA] Recognition error:', err);
     if (err === 'no-speech' || err === 'aborted') {
-        if (isNeuraActive) _scheduleRestart();
+        if (isNeuraActive && !isThinking) _scheduleRestart();
         return;
     }
     if (err === 'not-allowed' || err === 'service-not-allowed') {
@@ -824,7 +798,7 @@ function getTrivialResponse(text) {
     const identityQuestions = ['who are you', 'what are you', 'what is your name', 'whats your name',
         'your name', 'who created you', 'who made you'];
     if (identityQuestions.includes(cleaned)) {
-        return "I'm NEURA, your voice companion. Think of me as a knowledgeable friend you can just talk to. I am an advanced intelligence, and I was created by Aditya.";
+        return "I'm NEURA — your voice companion on AXIOGEN. Think of me as a knowledgeable friend you can just talk to.";
     }
 
     const thanks = ['thank you', 'thanks', 'thank you so much', 'thanks a lot', 'thanks so much',
@@ -984,13 +958,10 @@ async function processUserSpeech(text) {
                 if (segs.length) {
                     while (ttsQueue.length >= MAX_QUEUE) ttsQueue.shift();
                     ttsQueue.push(...segs);
-                    segs.forEach(s => prefetchSpeech(cleanTextForSpeech(s)));
                     buffered = '';
                     drainQueue();
                 } else if (buffered.trim().length > 1) {
-                    const cleanSeg = cleanTextForSpeech(buffered.trim());
                     ttsQueue.push(buffered.trim());
-                    prefetchSpeech(cleanSeg);
                     buffered = '';
                     drainQueue();
                 }
@@ -1005,7 +976,6 @@ async function processUserSpeech(text) {
             if (segs.length) {
                 while (ttsQueue.length >= MAX_QUEUE) ttsQueue.shift();
                 ttsQueue.push(...segs);
-                segs.forEach(s => prefetchSpeech(cleanTextForSpeech(s)));
                 buffered = remainder;
                 drainQueue();
             }
@@ -1196,9 +1166,9 @@ function _onResponseComplete(fullText) {
     processingLock  = false;
     lastInterimText = '';
 
-    resetSubtitleTypewriter();
-    setUserSubtitle('');
-    setResponseSubtitle('<span class="subtitle-hint">Keep speaking...</span>');
+    if (fullText) {
+        setSubtitleTarget(cleanTextForSpeech(fullText), '', true);
+    }
 
     if (isNeuraActive) {
         setOrbState('listening');
