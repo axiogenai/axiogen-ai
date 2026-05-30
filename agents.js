@@ -82,7 +82,7 @@ TASK
 Perform an exhaustive, multi-dimensional analysis of the provided source code.
 
 OUTPUT
-Respond with a single JSON object. Do NOT wrap it in markdown fences. Schema:
+ Schema:
 {
   "language": string,                  // detected programming language
   "framework": string | null,          // detected framework or runtime, if identifiable
@@ -119,7 +119,7 @@ Respond with a single JSON object. Do NOT wrap it in markdown fences. Schema:
     requires: ['originalCode', 'analysisJson'],
 
     systemPrompt: `\
-You are the Axiora Core Logic Engine — a surgical code-repair specialist.
+You are the Axiogen Core Logic Engine — a surgical code-repair specialist.
 
 TASK
 Using the diagnostic report, rewrite the source code to resolve every issue (critical → low priority order)
@@ -153,10 +153,9 @@ TASK
 Take the repaired code and apply the following improvements:
 1. Adopt modern language idioms and syntax (e.g. optional chaining, nullish coalescing, async/await, destructuring).
 2. Improve naming clarity: variables, functions, and types should read like documentation.
-3. Add JSDoc / docstrings to all exported functions and classes.
-4. Replace any magic numbers or string literals with named constants.
-5. Split overly long functions into smaller, single-responsibility units.
-6. Ensure the code conforms to current community best practices for its language/framework.
+3. Replace any magic numbers or string literals with named constants.
+4. Split overly long functions into smaller, single-responsibility units.
+5. Ensure the code conforms to current community best practices for its language/framework.
 
 OUTPUT
 Raw enhanced code only. No markdown fences. No preamble or commentary.`,
@@ -176,7 +175,7 @@ Raw enhanced code only. No markdown fences. No preamble or commentary.`,
     requires: ['fixedCode'],
 
     systemPrompt: `\
-You are the Axiora Code Minimizer — a performance and efficiency specialist.
+You are the Axiogen Code Minimizer — a performance and efficiency specialist.
 
 TASK
 Optimize the fixed code for production deployment:
@@ -238,7 +237,7 @@ Raw test code only. No markdown fences. No preamble or commentary.`,
     requires: ['originalCode', 'finalCode', 'userPrompt'],
 
     systemPrompt: `\
-You are the Axiora Cross-Validator — a verification and regression specialist.
+You are the Axiogen Cross-Validator — a verification and regression specialist.
 
 TASK
 Perform a high-fidelity comparison between the original source and the forged output.
@@ -250,7 +249,7 @@ Evaluate:
 5. API compatibility — is the public API surface preserved?
 
 OUTPUT
-Respond with a single JSON object. Do NOT wrap it in markdown fences. Schema:
+ Schema:
 {
   "confidenceScore": number,           // 1–100: confidence the forge is correct
   "semanticEquivalence": boolean,      // true if original intent is preserved
@@ -289,7 +288,7 @@ Respond with a single JSON object. Do NOT wrap it in markdown fences. Schema:
     requires: ['userPrompt', 'fixedCode', 'optimizedCode', 'testCode'],
 
     systemPrompt: `\
-You are the Axiora Final Auditor — the last gate before production shipment.
+You are the Axiogen Final Auditor — the last gate before production shipment.
 
 TASK
 Synthesize the entire forge pipeline into a final, production-ready deliverable.
