@@ -170,10 +170,7 @@
         #landing-page-viewport {
             position: fixed;
             inset: 0;
-            background: #030408;
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(0, 255, 255, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
+            background: linear-gradient(135deg, #050508 0%, #080811 50%, #0b0c16 100%);
             z-index: 999999;
             overflow-y: auto;
             display: flex;
@@ -182,6 +179,17 @@
             color: #fff;
             scroll-behavior: smooth;
             transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.6s;
+        }
+
+        .canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1; /* Keep behind text but visible */
+            opacity: 0.3;
+            pointer-events: none;
         }
 
         #landing-page-viewport.hidden {
@@ -286,6 +294,87 @@
         .landing-btn-secondary:hover {
             background: rgba(255, 255, 255, 0.04);
             color: #fff;
+        }
+
+        /* ========== STAR BORDER COMPONENT STYLE ========== */
+        .star-border-container {
+            display: inline-block;
+            position: relative;
+            border-radius: 14px;
+            overflow: hidden;
+            padding: 1px; /* thickness */
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .border-gradient-bottom {
+            position: absolute;
+            width: 300%;
+            height: 50%;
+            opacity: 0.7;
+            bottom: -12px;
+            right: -250%;
+            border-radius: 50%;
+            animation: star-movement-bottom 6s linear infinite alternate;
+            z-index: 0;
+            background: radial-gradient(circle, #00ffff, transparent 10%);
+        }
+
+        .border-gradient-top {
+            position: absolute;
+            opacity: 0.7;
+            width: 300%;
+            height: 50%;
+            top: -12px;
+            left: -250%;
+            border-radius: 50%;
+            animation: star-movement-top 6s linear infinite alternate;
+            z-index: 0;
+            background: radial-gradient(circle, #00ffff, transparent 10%);
+        }
+
+        .star-border-container .inner-content-btn {
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: #080914;
+            color: #fff;
+            font-size: 0.95rem;
+            text-align: center;
+            padding: 1.1rem 2.2rem;
+            border-radius: 13px;
+            z-index: 1;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .star-border-container:hover .inner-content-btn {
+            background: #0d0f22;
+            color: #00ffff;
+        }
+
+        @keyframes star-movement-bottom {
+            0% {
+                transform: translate(0%, 0%);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-100%, 0%);
+                opacity: 0;
+            }
+        }
+
+        @keyframes star-movement-top {
+            0% {
+                transform: translate(0%, 0%);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(100%, 0%);
+                opacity: 0;
+            }
         }
 
         /* Hero */
@@ -432,32 +521,34 @@
         }
 
         .feature-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(10, 11, 20, 0.98);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             padding: 2.5rem 2rem;
             border-radius: 20px;
-            transition: transform 0.2s, border-color 0.2s;
+            transition: transform 0.2s, border-color 0.2s, background-color 0.2s;
         }
 
         .feature-card:hover {
             transform: translateY(-4px);
-            border-color: rgba(0, 255, 255, 0.2);
-            background: rgba(0, 255, 255, 0.01);
+            border-color: rgba(0, 255, 255, 0.5);
+            background: rgba(15, 17, 30, 0.99);
         }
 
         .feat-icon {
             width: 48px;
             height: 48px;
             border-radius: 12px;
-            background: rgba(0, 255, 255, 0.05);
-            border: 1px solid rgba(0, 255, 255, 0.15);
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.35);
             display: flex;
             align-items: center;
             justify-content: center;
             color: #00ffff;
             font-size: 1.25rem;
             margin-bottom: 1.5rem;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
         }
 
         .feature-card h3 {
@@ -469,7 +560,7 @@
 
         .feature-card p {
             font-size: 0.875rem;
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.85);
             line-height: 1.6;
         }
 
@@ -486,19 +577,32 @@
         .pricing-card {
             flex: 1;
             min-width: 280px;
-            background: rgba(255, 255, 255, 0.01);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(10, 11, 20, 0.98);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             padding: 3rem 2.2rem;
             border-radius: 24px;
             position: relative;
             display: flex;
             flex-direction: column;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+
+        .pricing-card:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(15, 17, 30, 0.99);
         }
 
         .pricing-card.premium {
-            background: rgba(0, 255, 255, 0.01);
-            border: 1px solid rgba(0, 255, 255, 0.2);
-            box-shadow: 0 10px 40px rgba(0, 255, 255, 0.05);
+            background: rgba(10, 20, 32, 0.98);
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            box-shadow: 0 10px 40px rgba(0, 255, 255, 0.2);
+        }
+
+        .pricing-card.premium:hover {
+            background: rgba(15, 28, 44, 0.99);
+            border-color: rgba(0, 255, 255, 0.7);
         }
 
         .card-badge {
@@ -616,16 +720,21 @@
         }
 
         .faq-item {
-            background: rgba(255, 255, 255, 0.01);
-            border: 1px solid rgba(255, 255, 255, 0.04);
+            background: linear-gradient(rgba(13, 14, 24, 0.9), rgba(13, 14, 24, 0.9)), 
+                        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.02'/%3E%3C/svg%3E");
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
             padding: 1.25rem 1.75rem;
             cursor: pointer;
-            transition: border-color 0.2s;
+            transition: border-color 0.2s, background-color 0.2s;
         }
 
         .faq-item:hover {
-            border-color: rgba(255, 255, 255, 0.1);
+            border-color: rgba(0, 255, 255, 0.25);
+            background: linear-gradient(rgba(18, 20, 36, 0.95), rgba(18, 20, 36, 0.95)), 
+                        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
         }
 
         .faq-q {
@@ -644,8 +753,9 @@
         }
 
         .faq-item.active {
-            border-color: rgba(0, 255, 255, 0.15);
-            background: rgba(0, 255, 255, 0.005);
+            border-color: rgba(0, 255, 255, 0.35);
+            background: linear-gradient(rgba(16, 26, 44, 0.92), rgba(16, 26, 44, 0.92)), 
+                        url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.035'/%3E%3C/svg%3E");
         }
 
         .faq-item.active .faq-q i {
@@ -843,6 +953,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
         rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
@@ -875,6 +986,7 @@
 
     <!-- Stunning Marketing Landing Page Viewport -->
     <div id="landing-page-viewport">
+        <div class="canvas-container" id="canvas-container"></div>
         <!-- Sticky Navigation Bar -->
         <header class="landing-header">
             <div class="landing-header-container">
@@ -897,14 +1009,18 @@
         <!-- Hero Section -->
         <section class="landing-hero">
             <div class="hero-glow-bubble"></div>
-            <div class="hero-badge">AXIOGEN ENTERPRISE WORKSPACE 3.0</div>
+            <div class="hero-badge">AXIOGEN | Premium AI Chat</div>
             <h1>State-of-the-Art<br><span class="hero-gradient-text">Intelligent Platform</span></h1>
             <p>Experience specialized high-fidelity workspaces for document intelligence, secure code execution, deep research, and voice synthesis in a client-side secured, zero-logging environment.</p>
             <div class="hero-ctas">
-                <button class="landing-btn-hero-primary" onclick="launchAxiogenSandbox()">
-                    <span>LAUNCH FREE WORKSPACE</span>
-                    <i class="fas fa-arrow-right"></i>
-                </button>
+                <div class="star-border-container" onclick="launchAxiogenSandbox()">
+                    <div class="border-gradient-bottom"></div>
+                    <div class="border-gradient-top"></div>
+                    <div class="inner-content-btn">
+                        <span>LAUNCH FREE WORKSPACE</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </div>
+                </div>
                 <button class="landing-btn-hero-secondary" onclick="openInlineAuthModal()">
                     <span>ACCESS CONSOLE</span>
                 </button>
@@ -1697,7 +1813,12 @@
 
         <!-- Inline Authentication Overlay -->
         <div id="inline-auth-overlay" class="inline-auth-overlay">
-            <div class="login-card" style="position: relative;">
+            <div class="inline-auth-card" style="position: relative;">
+                <!-- Close Button -->
+                <button class="auth-close-btn" onclick="document.getElementById('inline-auth-overlay').classList.remove('active'); document.getElementById('landing-page-viewport').classList.remove('hidden');" title="Close overlay" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: rgba(255, 255, 255, 0.4); cursor: pointer; font-size: 1.15rem; transition: color 0.2s; z-index: 10;">
+                    <i class="fas fa-times"></i>
+                </button>
+
                 <div class="inline-auth-tabs">
                     <button class="inline-auth-tab-btn active" onclick="switchAuthTab('login')">Log In</button>
                     <button class="inline-auth-tab-btn" onclick="switchAuthTab('signup')">Sign Up</button>
@@ -1714,12 +1835,13 @@
                         <input type="email" id="login-email" required placeholder="Email Address">
                     </div>
                     
-                    <div class="login-input-group">
+                    <div class="login-input-group" style="position: relative;">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="login-password" required placeholder="Password">
+                        <input type="password" id="login-password" required placeholder="Password" style="width: 100%; padding-right: 2.5rem;">
+                        <i class="far fa-eye toggle-password-visibility" onclick="togglePasswordVisibility('login-password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: rgba(255, 255, 255, 0.4); transition: color 0.2s;"></i>
                     </div>
 
-                    <button type="submit" class="login-btn" id="login-submit-btn">PROCEED TO CONSOLE</button>
+                    <button type="submit" class="inline-auth-btn-submit" id="login-submit-btn">PROCEED TO CONSOLE</button>
                 </form>
 
                 <!-- Sign Up Form -->
@@ -1738,12 +1860,13 @@
                         <input type="email" id="signup-email" required placeholder="Email Address">
                     </div>
                     
-                    <div class="login-input-group">
+                    <div class="login-input-group" style="position: relative;">
                         <i class="fas fa-lock"></i>
-                        <input type="password" id="signup-password" required placeholder="Choose Password" minlength="6">
+                        <input type="password" id="signup-password" required placeholder="Choose Password" minlength="6" style="width: 100%; padding-right: 2.5rem;">
+                        <i class="far fa-eye toggle-password-visibility" onclick="togglePasswordVisibility('signup-password', this)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: rgba(255, 255, 255, 0.4); transition: color 0.2s;"></i>
                     </div>
 
-                    <button type="submit" class="login-btn" id="signup-submit-btn">CREATE PROFILE</button>
+                    <button type="submit" class="inline-auth-btn-submit" id="signup-submit-btn">CREATE PROFILE</button>
                 </form>
             </div>
         </div>
@@ -1839,35 +1962,45 @@
           (async () => {
             const { data: { session } } = await _sb.auth.getSession();
             
-            if (session) {
+            // Check if user has unlocked the workspace sandbox
+            const isUnlocked = localStorage.getItem('AXIOGEN_sandbox_unlocked') === 'true';
+            
+            if (session || isUnlocked) {
                 // EXPOSE USER & RESTORE SESSION
                 const landing = document.getElementById('landing-page-viewport');
-                if (landing) landing.style.display = 'none';
-
-                window.AXIOGEN_USER = session.user;
-                window.AXIOGEN_SESSION = session;
-
-                // Dynamically set avatar initials
-                const email = session.user.email || 'User';
-                const name = session.user.user_metadata?.full_name || email;
-                const initials = name.substring(0, 2).toUpperCase();
-                
-                const dockProfile = document.querySelector('.dock-profile');
-                const dockAvatar = document.querySelector('.dock-avatar');
-                if (dockProfile) dockProfile.title = `${name} (Profile)`;
-                if (dockAvatar) dockAvatar.textContent = initials;
-
-                // NSFW authorization checks
-                const nsfwAuthorizedEmails = ['aditaypatil07@gmail.com', 'axiogen01@gmail.com'];
-                const isNsfwAuthorized = nsfwAuthorizedEmails.includes(session.user.email);
-                
-                const nsfwBtn = document.querySelector('.workspace-btn[data-workspace="nsfw"]');
-                if (isNsfwAuthorized) {
-                    if (nsfwBtn) nsfwBtn.style.setProperty('display', 'flex', 'important');
-                } else {
-                    if (nsfwBtn) nsfwBtn.remove();
+                if (landing) {
+                    landing.style.display = 'none';
+                    landing.classList.add('hidden');
                 }
-            } else {
+
+                if (session) {
+                    window.AXIOGEN_USER = session.user;
+                    window.AXIOGEN_SESSION = session;
+
+                    // Dynamically set avatar initials
+                    const email = session.user.email || 'User';
+                    const name = session.user.user_metadata?.full_name || email;
+                    const initials = name.substring(0, 2).toUpperCase();
+                    
+                    const dockProfile = document.querySelector('.dock-profile');
+                    const dockAvatar = document.querySelector('.dock-avatar');
+                    if (dockProfile) dockProfile.title = `${name} (Profile)`;
+                    if (dockAvatar) dockAvatar.textContent = initials;
+
+                    // NSFW authorization checks
+                    const nsfwAuthorizedEmails = ['aditaypatil07@gmail.com', 'axiogen01@gmail.com'];
+                    const isNsfwAuthorized = nsfwAuthorizedEmails.includes(session.user.email);
+                    
+                    const nsfwBtn = document.querySelector('.workspace-btn[data-workspace="nsfw"]');
+                    if (isNsfwAuthorized) {
+                        if (nsfwBtn) nsfwBtn.style.setProperty('display', 'flex', 'important');
+                    } else {
+                        if (nsfwBtn) nsfwBtn.remove();
+                    }
+                }
+            }
+            
+            if (!session) {
                 // START GUEST MODE OR LOCK SCREEN IF TIMER EXPIRED
                 const GUEST_DURATION_MS = 5 * 60 * 1000; // 5 Minutes
                 
@@ -1925,6 +2058,7 @@
             localStorage.removeItem('AXIOGEN_active_workspace');
             localStorage.removeItem('AXIOGEN_tutor_active');
             localStorage.removeItem('AXIOGEN_guest_start_time');
+            localStorage.removeItem('AXIOGEN_sandbox_unlocked');
             window.location.reload();
           };
 
@@ -1932,8 +2066,11 @@
           function launchAxiogenSandbox() {
               const landing = document.getElementById('landing-page-viewport');
               if (landing) {
+                  landing.style.display = 'none';
                   landing.classList.add('hidden');
               }
+              localStorage.setItem('AXIOGEN_sandbox_unlocked', 'true');
+              
               // Save that they visited so we can open guided tour for first timers!
               const hasVisited = localStorage.getItem('AXIOGEN_visited');
               if (!hasVisited) {
@@ -1952,7 +2089,11 @@
           function openInlineAuthModal(tab = 'login') {
               // Smoothly launch workspace view behind
               const landing = document.getElementById('landing-page-viewport');
-              if (landing) landing.classList.add('hidden');
+              if (landing) {
+                  landing.style.display = 'none';
+                  landing.classList.add('hidden');
+              }
+              localStorage.setItem('AXIOGEN_sandbox_unlocked', 'true');
 
               const authOverlay = document.getElementById('inline-auth-overlay');
               if (authOverlay) {
@@ -1971,6 +2112,22 @@
               }
           }
           window.toggleFaq = toggleFaq;
+
+          // Toggle password visibility
+          function togglePasswordVisibility(inputId, iconEl) {
+              const input = document.getElementById(inputId);
+              if (!input) return;
+              if (input.type === 'password') {
+                  input.type = 'text';
+                  iconEl.classList.remove('fa-eye');
+                  iconEl.classList.add('fa-eye-slash');
+              } else {
+                  input.type = 'password';
+                  iconEl.classList.remove('fa-eye-slash');
+                  iconEl.classList.add('fa-eye');
+              }
+          }
+          window.togglePasswordVisibility = togglePasswordVisibility;
 
           // ══════ PULL TO REFRESH LOGIC ══════
           (() => {
@@ -2248,6 +2405,93 @@
                   }
               }
           }
+        </script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        <script>
+          // Three.js Background Animation
+          function initThreeJS() {
+              const container = document.getElementById('canvas-container');
+              if (!container) return;
+              const scene = new THREE.Scene();
+              const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+              const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+              
+              renderer.setSize(window.innerWidth, window.innerHeight);
+              renderer.setPixelRatio(window.devicePixelRatio);
+              container.appendChild(renderer.domElement);
+
+              // Create particles
+              const particlesGeometry = new THREE.BufferGeometry();
+              const particlesCount = 2000;
+              const posArray = new Float32Array(particlesCount * 3);
+
+              for (let i = 0; i < particlesCount * 3; i++) {
+                  posArray[i] = (Math.random() - 0.5) * 15;
+              }
+
+              // Create a circular texture canvas dynamically
+              const canvas = document.createElement('canvas');
+              canvas.width = 16;
+              canvas.height = 16;
+              const ctx = canvas.getContext('2d');
+              const grad = ctx.createRadialGradient(8, 8, 0, 8, 8, 8);
+              grad.addColorStop(0, 'rgba(255,255,255,1)');
+              grad.addColorStop(1, 'rgba(255,255,255,0)');
+              ctx.fillStyle = grad;
+              ctx.fillRect(0, 0, 16, 16);
+              const particleTexture = new THREE.CanvasTexture(canvas);
+
+              particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+              const particlesMaterial = new THREE.PointsMaterial({
+                  size: 0.05,
+                  color: 0x00ffff,
+                  transparent: true,
+                  opacity: 0.95,
+                  map: particleTexture,
+                  depthWrite: false,
+                  blending: THREE.AdditiveBlending
+              });
+
+              const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+              scene.add(particlesMesh);
+
+              camera.position.z = 5;
+
+              // Mouse interaction
+              let mouseX = 0;
+              let mouseY = 0;
+
+              document.addEventListener('mousemove', (event) => {
+                  mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                  mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+              });
+
+              function animate() {
+                  requestAnimationFrame(animate);
+
+                  particlesMesh.rotation.x += 0.0003;
+                  particlesMesh.rotation.y += 0.0002;
+
+                  // Mouse influence
+                  particlesMesh.rotation.x += mouseY * 0.0001;
+                  particlesMesh.rotation.y += mouseX * 0.0001;
+
+                  renderer.render(scene, camera);
+              }
+
+              animate();
+
+              // Handle resize
+              window.addEventListener('resize', () => {
+                  camera.aspect = window.innerWidth / window.innerHeight;
+                  camera.updateProjectionMatrix();
+                  renderer.setSize(window.innerWidth, window.innerHeight);
+              });
+          }
+          window.addEventListener('DOMContentLoaded', () => {
+              initThreeJS();
+          });
         </script>
 
         <script src="forge.js" type="module"></script>
