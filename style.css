@@ -5051,7 +5051,7 @@ body, .app-container {
 /* ========== MOBILE VIEWPORTS PROGRESSIVE DISCLOSURE ========== */
 @media (max-width: 768px) {
     /* Hide advanced secondary workspace panels unless active */
-    .chat-header .header-right {
+    .chat-header .header-right:not(#tutor-header-controls) {
         display: none !important;
     }
     .custom-dropdown {
