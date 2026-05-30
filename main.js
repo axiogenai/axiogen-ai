@@ -24,7 +24,7 @@ const state = {
     currentMessages: [],
     currentChatId: null,
     isStreaming: false,
-    selectedModel: localStorage.getItem('AXIOGEN_selected_model') || 'meta-llama/llama-3.2-3b-instruct:free',
+    selectedModel: localStorage.getItem('AXIOGEN_selected_model') || 'liquid/lfm-2.5-1.2b-instruct:free',
     expertModel: localStorage.getItem('AXIOGEN_expert_model') || 'google/gemini-2.0-flash-001',
     currentWorkspace: null,
     tutorActivated: false,
@@ -37,31 +37,35 @@ window.state = state;
 
 function updateApiKeyPool() {
     API_KEYS = [];
-
-    // 1. Load keys from environment VITE_OPENROUTER_KEYS (highest priority pool)
+    
+    // 1. Load custom keys entered in the UI Settings (highest priority)
+    const localKeys = localStorage.getItem('AXIOGEN_api_key') || '';
+    if (localKeys.trim()) {
+        API_KEYS = localKeys.split(',').map(k => k.trim()).filter(Boolean);
+    }
+    
+    // 2. Append environment pool keys (VITE_OPENROUTER_KEYS) as unique backups
     const envKeys = import.meta.env.VITE_OPENROUTER_KEYS || '';
     if (envKeys.trim()) {
-        API_KEYS = envKeys.split(',').map(k => k.trim()).filter(Boolean);
+        const parsedEnv = envKeys.split(',').map(k => k.trim()).filter(Boolean);
+        parsedEnv.forEach(ek => {
+            if (!API_KEYS.includes(ek)) {
+                API_KEYS.push(ek);
+            }
+        });
     }
-
-    // 2. If no env pool, fallback to single env VITE_OPENROUTER_API_KEY
-    if (API_KEYS.length === 0 && import.meta.env.VITE_OPENROUTER_API_KEY) {
-        API_KEYS.push(import.meta.env.VITE_OPENROUTER_API_KEY.trim());
-    }
-
-    // 3. Fallback to localStorage user entered key ONLY if no env keys are configured
-    if (API_KEYS.length === 0) {
-        const localKeys = localStorage.getItem('AXIOGEN_api_key') || '';
-        if (localKeys.trim()) {
-            API_KEYS = localKeys.split(',').map(k => k.trim()).filter(Boolean);
+    
+    // 3. Append single env fallback key (VITE_OPENROUTER_API_KEY) if unique
+    if (import.meta.env.VITE_OPENROUTER_API_KEY) {
+        const fallbackKey = import.meta.env.VITE_OPENROUTER_API_KEY.trim();
+        if (fallbackKey && !API_KEYS.includes(fallbackKey)) {
+            API_KEYS.push(fallbackKey);
         }
     }
-
-    // Reset index if out of bounds after pool refresh
-    if (currentKeyIndex >= API_KEYS.length) currentKeyIndex = 0;
-
+    
     // Sync current state apiKey
     if (API_KEYS.length > 0) {
+        if (currentKeyIndex >= API_KEYS.length) currentKeyIndex = 0;
         state.apiKey = API_KEYS[currentKeyIndex];
     } else {
         state.apiKey = '';
@@ -826,6 +830,19 @@ function syncTutorHeaderVisibility() {
             tutorHeaderControls.style.display = 'flex';
         } else {
             tutorHeaderControls.style.display = 'none';
+            // Force disable tutor mode if not in examination workspace
+            state.tutorActivated = false;
+            localStorage.removeItem('AXIOGEN_tutor_active');
+            const tutorToggleBtn = document.getElementById('tutor-toggle-btn');
+            const tutorStatusIcon = document.getElementById('tutor-status-icon');
+            const tutorStatusText = document.getElementById('tutor-status-text');
+            if (tutorToggleBtn && tutorStatusIcon && tutorStatusText) {
+                tutorToggleBtn.style.borderColor = 'rgba(255,255,255,0.1)';
+                tutorToggleBtn.style.background = 'transparent';
+                tutorStatusIcon.style.color = '#888';
+                tutorStatusText.style.color = '#fff';
+                tutorStatusText.textContent = 'Expert Tutor: Off';
+            }
         }
     }
 }
